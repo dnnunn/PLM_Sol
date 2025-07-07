@@ -14,15 +14,22 @@ def run_command(cmd):
 def main():
     print("Installing missing dependencies...")
     
-    # Install PyYAML instead of pyaml (more common and compatible)
+    # Install both PyYAML and pyaml
     run_command("pip install PyYAML")
+    run_command("pip install pyaml")
     
-    # Check if it worked
+    # Check if they worked
     try:
         import yaml
         print(f"✓ Successfully imported yaml module")
     except ImportError as e:
         print(f"✗ Failed to import yaml: {e}")
+        
+    try:
+        import pyaml
+        print(f"✓ Successfully imported pyaml module")
+    except ImportError as e:
+        print(f"✗ Failed to import pyaml: {e}")
     
     print("\nDependencies installation complete.")
 
