@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 import sys
 import importlib
+import pkg_resources
 
 print(f"Python version: {sys.version}")
 
 try:
     import bio_embeddings
-    print(f"bio_embeddings version: {bio_embeddings.__version__}")
+    
+    # Try to get version using pkg_resources
+    try:
+        version = pkg_resources.get_distribution("bio-embeddings").version
+        print(f"bio_embeddings version: {version}")
+    except Exception:
+        print("bio_embeddings version not available")
     
     # Try to import specific embedders
     print("\nChecking for ProtTransT5XLU50Embedder:")
