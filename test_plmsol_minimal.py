@@ -13,30 +13,63 @@ from pathlib import Path
 def test_imports():
     """Test if all required dependencies are installed."""
     print("Testing imports...")
-    try:
-        import h5py
-        import torch
-        import torch.nn as nn
-        import torch.nn.functional as F
-        from torch.utils.data import Dataset, DataLoader
-        from Bio import SeqIO
-        print("✓ Basic dependencies imported successfully")
-    except ImportError as e:
-        print(f"✗ Error importing basic dependencies: {e}")
+    
+    # Test basic dependencies one by one for better error reporting
+    dependencies = [
+        'h5py', 'torch', 'torch.nn', 'torch.nn.functional', 
+        'torch.utils.data', 'Bio', 'yaml'
+    ]
+    
+    all_passed = True
+    for dep in dependencies:
+        try:
+            __import__(dep)
+            print(f"✓ Successfully imported {dep}")
+        except ImportError as e:
+            print(f"✗ Error importing {dep}: {e}")
+            all_passed = False
+    
+    if not all_passed:
         return False
-
-    try:
-        # Try importing PLM_Sol specific modules
-        from models.biLSTM_TextCNN import biLSTM_TextCNN
-        from datasets.embeddings_dataset import Embeddings_predict_Dataset
-        from datasets.transforms import Solubility_predict_ToInt, predict_ToTensor
-        from torchvision.transforms import transforms
-        from utils.general import AMINO_ACIDS
-        from solver import Solver
-        print("✓ PLM_Sol specific modules imported successfully")
+        
+    print("✓ All basic dependencies imported successfully")
+    
+    # Add current directory to path to find local modules
+    import sys
+    import os
+    sys.path.append(os.getcwd())
+    
+    # Try importing PLM_Sol specific modules one by one
+    plm_modules = [
+        ('models.biLSTM_TextCNN', 'biLSTM_TextCNN'),
+        ('datasets.embeddings_dataset', 'Embeddings_predict_Dataset'),
+        ('datasets.transforms', ['Solubility_predict_ToInt', 'predict_ToTensor']),
+        ('utils.general', 'AMINO_ACIDS'),
+        ('solver', 'Solver')
+    ]
+    
+    all_passed = True
+    for module_path, names in plm_modules:
+        try:
+            module = __import__(module_path, fromlist=['*'])
+            if isinstance(names, list):
+                for name in names:
+                    getattr(module, name)
+                    print(f"✓ Successfully imported {module_path}.{name}")
+            else:
+                getattr(module, names)
+                print(f"✓ Successfully imported {module_path}.{names}")
+        except ImportError as e:
+            print(f"✗ Error importing {module_path}: {e}")
+            all_passed = False
+        except AttributeError as e:
+            print(f"✗ Error accessing {names} in {module_path}: {e}")
+            all_passed = False
+    
+    if all_passed:
+        print("✓ All PLM_Sol specific modules imported successfully")
         return True
-    except ImportError as e:
-        print(f"✗ Error importing PLM_Sol specific modules: {e}")
+    else:
         return False
 
 def check_model_files():
