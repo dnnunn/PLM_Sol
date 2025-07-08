@@ -14,9 +14,17 @@ def run_command(cmd):
 def main():
     print("Installing missing dependencies...")
     
-    # Install both PyYAML and pyaml
-    run_command("pip install PyYAML")
-    run_command("pip install pyaml")
+    # Install all required dependencies
+    dependencies = [
+        "PyYAML",
+        "pyaml",
+        "tensorboard",
+        "deepblast",  # This might be needed for bio_embeddings align module
+    ]
+    
+    for dep in dependencies:
+        print(f"\nInstalling {dep}...")
+        run_command(f"pip install {dep}")
     
     # Check if they worked
     try:
@@ -30,6 +38,12 @@ def main():
         print(f"✓ Successfully imported pyaml module")
     except ImportError as e:
         print(f"✗ Failed to import pyaml: {e}")
+        
+    try:
+        import tensorboard
+        print(f"✓ Successfully imported tensorboard module")
+    except ImportError as e:
+        print(f"✗ Failed to import tensorboard: {e}")
     
     print("\nDependencies installation complete.")
 
