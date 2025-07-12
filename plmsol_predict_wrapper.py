@@ -41,15 +41,23 @@ def fasta_to_remapped(fasta_path, remapped_path):
     shutil.copy(fasta_path, remapped_path)
 
 def run_embeddings(config_path):
+    # Get the directory of this wrapper script
+    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
+    # Use absolute path to the script
+    embed_script = os.path.join(wrapper_dir, 'generate_embeddings_memory_efficient.py')
     cmd = [
-        'python', 'generate_embeddings_memory_efficient.py',
+        'python', embed_script,
         '--config', config_path
     ]
     subprocess.run(cmd, check=True)
 
 def run_inference(config_path):
+    # Get the directory of this wrapper script
+    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
+    # Use absolute path to the script
+    inference_script = os.path.join(wrapper_dir, 'inference.py')
     cmd = [
-        'python', 'inference.py',
+        'python', inference_script,
         '--config', config_path
     ]
     subprocess.run(cmd, check=True)
