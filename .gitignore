@@ -47,3 +47,7 @@ temp/
 # *.h5
 # *.pkl
 # *.model
+<<<<<<< HEAD
+=======
+
+>>>>>>> 189438d (Chore: Update .gitignore to ignore Mac resource forks and other unnecessary files)
