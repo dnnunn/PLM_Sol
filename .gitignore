@@ -51,3 +51,19 @@ temp/
 =======
 
 >>>>>>> 189438d (Chore: Update .gitignore to ignore Mac resource forks and other unnecessary files)
+# Mac resource forks
+._*
+
+# Python cache
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Hidden system files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
