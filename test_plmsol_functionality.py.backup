@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""
+Test script to verify PLM_Sol functionality on VM.
+This script attempts to:
+1. Import key PLM_Sol modules
+2. Check for model files
+3. Provide instructions for embedding generation and prediction
+"""
+
+import os
+import sys
+import time
+import traceback
+import yaml
+
+def print_section(title):
+    """Print a section header"""
+    print("\n" + "="*80)
+    print(f" {title} ".center(80, "="))
+    print("="*80)
+
+def test_imports():
+    """Test importing key PLM_Sol modules"""
+    print_section("TESTING IMPORTS")
+    
+    modules_to_test = [
+        "numpy", 
+        "pandas",
+        "torch",
+        "matplotlib",
+        "sklearn",
+        "Bio"
+    ]
+    
+    all_passed = True
+    
+    for module in modules_to_test:
+        try:
+            mod = __import__(module)
+            print(f"✅ Successfully imported {module} {mod.__version__}")
+        except ImportError as e:
+            print(f"❌ Failed to import {module}: {e}")
+            all_passed = False
+        except AttributeError:
+            print(f"✅ Successfully imported {module} (version unknown)")
+    
+    # Try importing bio_embeddings
+    try:
+        from bio_embeddings.embed import ProtTransT5XLU50Embedder
+        print("✅ Successfully imported bio_embeddings.embed.ProtTransT5XLU50Embedder")
+    except ImportError as e:
+        print(f"❌ Failed to import bio_embeddings.embed.ProtTransT5XLU50Embedder: {e}")
+        all_passed = False
+    
+    # Try importing PLM_Sol specific modules
+    try:
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        from datasets.embeddings_dataset import EmbeddingsDataset
+        print("✅ Successfully imported PLM_Sol datasets.embeddings_dataset")
+    except ImportError as e:
+        print(f"❌ Failed to import PLM_Sol datasets: {e}")
+        all_passed = False
+    
+    return all_passed
+
+def check_model_files():
+    """Check if model checkpoint files exist"""
+    print_section("CHECKING MODEL FILES")
+    
+    # Define paths to check
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    checkpoint_dir = os.path.join(base_dir, "checkpoints")
+    
+    if not os.path.exists(checkpoint_dir):
+        print(f"❌ Checkpoint directory not found: {checkpoint_dir}")
+        return False
+    
+    # Check for checkpoint files
+    checkpoint_files = [f for f in os.listdir(checkpoint_dir) if f.endswith('.pth')]
+    
+    if checkpoint_files:
+        print(f"✅ Found {len(checkpoint_files)} checkpoint files:")
+        for file in checkpoint_files:
+            print(f"  - {file}")
+        return True
+    else:
+        print("❌ No checkpoint files found in checkpoint directory")
+        return False
+
+def main():
+    """Run all tests"""
+    print_section("PLM_SOL FUNCTIONALITY TEST")
+    print(f"Current directory: {os.getcwd()}")
+    print(f"Python version: {sys.version}")
+    print(f"Date and time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Run tests
+    imports_ok = test_imports()
+    model_files_ok = check_model_files()
+    
+    # Summary
+    print_section("TEST SUMMARY")
+    print(f"Imports: {'✅ PASS' if imports_ok else '❌ FAIL'}")
+    print(f"Model Files: {'✅ PASS' if model_files_ok else '❌ FAIL'}")
+    
+    # Instructions
+    print_section("RUNNING INSTRUCTIONS")
+    print("To generate embeddings and run predictions with PLM_Sol:")
+    print("\n1. Generate embeddings:")
