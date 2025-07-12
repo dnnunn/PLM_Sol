@@ -1,0 +1,12 @@
+half_precision: true
+half_precision_model: true
+mapping_file: /home/david_nunn/PLM_Sol/plmsol_test/test_dataset_emb/mapping_file.csv
+prefix: /home/david_nunn/PLM_Sol/plmsol_test/test_dataset_emb
+protocol: prottrans_t5_xl_u50
+remapped_sequences_file: 
+  /home/david_nunn/PLM_Sol/plmsol_test/test_dataset_emb/remapped_sequences_file.fasta
+sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/test_dataset_emb/sequences_file.fasta
+simple_remapping: false
+stage_name: t5_embeddings
+start_time: '2025-07-08 10:30:14.998804+00:00'
+type: embed
