@@ -1,0 +1,10 @@
+embeddings_file: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/plmsol_test/random_emb/t5_embeddings/embeddings_file.h5
+remapping: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/plmsol_test/random_proteins_combined.fasta
+output_file: random_proteins_inference
+model_type: biLSTM_TextCNN
+checkpoint: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/model_param/model_param.t7
+model_parameters:
+  embeddings_dim: 1024
+  dropout: 0.5
+embedding_mode: mean
+key_format: hash
