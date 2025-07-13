@@ -54,7 +54,4 @@ temp/
 .LSOverride
 protTrans_prediction_result.csv
 lacZ_test/
-plmsol_test/
-protTrans_prediction_result.csv
-lacZ_test/
-plmsol_test/
+
