@@ -80,10 +80,20 @@ def run_inference(config_path):
             
     # Run the inference script
     print(f"Running inference command: {' '.join(cmd)}")
-    subprocess.run(cmd, check=True)
+    try:
+        # Capture and print output to help with debugging
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        print(f"Inference stdout:\n{result.stdout}")
+        if result.stderr:
+            print(f"Inference stderr:\n{result.stderr}")
+    except subprocess.CalledProcessError as e:
+        print(f"Inference failed with exit code {e.returncode}")
+        print(f"Stdout: {e.stdout}")
+        print(f"Stderr: {e.stderr}")
+        raise
     
     # Wait for the output file to appear (with timeout)
-    max_wait_time = 60  # seconds
+    max_wait_time = 180  # seconds - increased wait time
     wait_interval = 2   # seconds
     waited = 0
     output_file_found = None
