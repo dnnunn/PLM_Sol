@@ -19,6 +19,7 @@ def create_embedding_config(fasta_path, output_dir):
     fasta_basename = os.path.basename(fasta_path).split('.')[0]
     output_prefix = os.path.join(output_dir, fasta_basename + "_emb")
     
+    # Match exactly the structure of the working lacZ_embedding_config.yml
     config = {
         "global": {
             "sequences_file": fasta_path,
@@ -29,11 +30,6 @@ def create_embedding_config(fasta_path, output_dir):
             "protocol": "prottrans_t5_xl_u50",
             "half_precision_model": True,
             "half_precision": True
-        },
-        "annotations_from_t5": {
-            "type": "extract",
-            "protocol": "la_prott5",
-            "depends_on": "t5_embeddings"
         }
     }
     
