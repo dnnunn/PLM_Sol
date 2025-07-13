@@ -1,5 +1,12 @@
+annotations_from_t5:
+  depends_on: t5_embeddings
+  protocol: la_prott5
+  type: extract
 global:
-  # Path to input sequences FASTA
+  prefix: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb
   sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined.fasta
-  # Output directory prefix
-  prefix: /home/david_nunn/PLM_Sol/plmsol_test/random_emb
+t5_embeddings:
+  half_precision: true
+  half_precision_model: true
+  protocol: prottrans_t5_xl_u50
+  type: embed

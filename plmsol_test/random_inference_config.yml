@@ -1,10 +1,9 @@
-embeddings_file: /home/david_nunn/PLM_Sol/plmsol_test/random_emb/t5_embeddings/embeddings_file.h5
-remapping: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined.fasta
-output_files_name: random_proteins_inference
-model_type: biLSTM_TextCNN
-checkpoint: /home/david_nunn/PLM_Sol/model_param/model_param.t7
-model_parameters:
-  embeddings_dim: 1024
-  dropout: 0.5
-embedding_mode: mean
-key_format: id
+batch_size: 1
+checkpoints_list:
+- ./model_param/model_param.t7
+embeddings: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb/t5_embeddings/embeddings_file.h5
+key_format: fasta_descriptor
+log_iterations: 100
+n_draws: 1000
+output_files_name: random_inference
+remapping: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb/remapped_sequences_file.fasta
