@@ -153,28 +153,34 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir):
         os.chdir(original_cwd)
         print(f"Restored working directory to {original_cwd}")
 
-def format_results(prediction_file, fasta_path, output_path):
+def format_results(prediction_file, fasta_path, output_path, remapped_sequences_file=None):
     """Format the PLM_Sol results to match the benchmarking standard"""
     try:
         # Read the PLM_Sol output file - contains MD5 hashes as protein_ID
         pred_df = pd.read_csv(prediction_file)
         print(f"Read prediction file with columns: {pred_df.columns.tolist()}")
         
-        # CRITICAL: Find the remapped sequences file in the same directory as embeddings_file
-        # We need this to map the MD5 hashes back to the original sequence IDs
-        plmsol_root = os.path.dirname(os.path.abspath(__file__))
-        remapped_files = []
-        for root, dirs, files in os.walk(plmsol_root):
-            for file in files:
-                if file == 'remapped_sequences_file.fasta':
-                    remapped_files.append(os.path.join(root, file))
-        
-        if not remapped_files:
-            print("ERROR: Could not find remapped sequences file")
-            return False
-        
-        # Use the most recently modified remapped sequences file
-        remapped_path = sorted(remapped_files, key=os.path.getmtime, reverse=True)[0]
+        # CRITICAL: Use the remapped sequences file that was passed in
+        # If not passed, find the most recently created one
+        if not remapped_sequences_file or not os.path.exists(remapped_sequences_file):
+            print("Remapped sequences file not provided, searching for most recent one...")
+            # Look in the current embedding directory for remapped_sequences_file.fasta
+            plmsol_root = os.path.dirname(os.path.abspath(__file__))
+            remapped_files = []
+            for root, dirs, files in os.walk(plmsol_root):
+                for file in files:
+                    if file == 'remapped_sequences_file.fasta':
+                        remapped_files.append(os.path.join(root, file))
+            
+            if not remapped_files:
+                print("ERROR: Could not find remapped sequences file")
+                return False
+            
+            # Use the most recently modified remapped sequences file
+            remapped_path = sorted(remapped_files, key=os.path.getmtime, reverse=True)[0]
+        else:
+            remapped_path = remapped_sequences_file
+            
         print(f"Using remapped sequences file: {remapped_path}")
         
         # Create mapping from MD5 hash to original sequence ID
@@ -191,6 +197,7 @@ def format_results(prediction_file, fasta_path, output_path):
         
         # Map protein_ID (MD5 hash) to original sequence ID and add sequence
         if 'protein_ID' in pred_df.columns:
+            # Create mapping from hash to original ID
             mapped_ids = []
             for hash_id in pred_df['protein_ID']:
                 if hash_id in hash_to_id:
@@ -199,20 +206,23 @@ def format_results(prediction_file, fasta_path, output_path):
                     # Keep the hash if no mapping found
                     mapped_ids.append(hash_id)
             
+            # Replace protein_ID with original sequence ID
             pred_df['Accession'] = mapped_ids
-            
-            # Add sequence column by matching Accession to original sequence
+        
+        # Ensure we have a proper Sequence column
+        if 'sequence' in pred_df.columns:
+            # Rename the column to standard name
+            pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
+        
+        # Add sequence from FASTA file if not already present or empty
+        if 'Sequence' not in pred_df.columns or pred_df['Sequence'].isna().any() or (pred_df['Sequence'] == '').any():
             pred_df['Sequence'] = [seqs.get(acc, "") for acc in pred_df['Accession']]
         
         # Add the predictor name
         pred_df['Predictor'] = 'PLM_Sol'
         
-        if 'sequence' in pred_df.columns:
-            pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
-        elif 'Accession' in pred_df.columns:
-            # If no sequence column, add it from the FASTA
-            pred_df['Sequence'] = pred_df['Accession'].map(seqs)
-        else:
+        # Validate that we have all required columns
+        if 'Accession' not in pred_df.columns or 'Sequence' not in pred_df.columns:
             raise ValueError(f"Could not find required columns. Available columns: {pred_df.columns.tolist()}")
         
         # Map prediction column
@@ -322,8 +332,8 @@ def run_pipeline(fasta_path, output_path, tmpdir):
         prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir)
         
         if prediction_file and os.path.exists(prediction_file):
-            # Step 3: Format results
-            success = format_results(prediction_file, fasta_path, output_path)
+            # Step 3: Format results - PASS THE REMAPPED_SEQUENCES_FILE
+            success = format_results(prediction_file, fasta_path, output_path, remapped_sequences_file)
             if success:
                 return True
         
