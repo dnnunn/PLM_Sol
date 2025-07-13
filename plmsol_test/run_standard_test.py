@@ -105,7 +105,9 @@ def run_inference(config_path):
     os.chdir(PLMSOL_DIR)
     print(f"Changed working directory to: {os.getcwd()}")
     
-    cmd = f"python inference.py --config {config_path}"
+    # Use absolute path for config file since we changed directories
+    abs_config_path = os.path.abspath(config_path)
+    cmd = f"python inference.py --config {abs_config_path}"
     print(f"Running command: {cmd}")
     
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
