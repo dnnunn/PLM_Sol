@@ -158,19 +158,35 @@ def main():
             
         try:
             pred_df = pd.read_csv(actual_output_file)
+            print(f"Columns in prediction file: {pred_df.columns.tolist()}")
             seqs = {rec.id: str(rec.seq) for rec in SeqIO.parse(args.fasta, "fasta")}
             pred_df['Predictor'] = 'PLM_Sol'
-            pred_df['Sequence'] = pred_df['Accession'].map(seqs)
+            
+            # Map column names from protTrans_prediction_result.csv to expected names
+            if 'protein_ID' in pred_df.columns:
+                # Rename to standard column names
+                pred_df.rename(columns={'protein_ID': 'Accession'}, inplace=True)
+                
+            # If sequence is already in the prediction file, use it directly
+            if 'sequence' in pred_df.columns:
+                pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
+            elif 'Accession' in pred_df.columns:
+                # Otherwise map from FASTA
+                pred_df['Sequence'] = pred_df['Accession'].map(seqs)
+            else:
+                raise ValueError(f"Could not find required columns. Available columns: {pred_df.columns.tolist()}")
             
             # Assume prediction column is 'SolubilityScore' or similar
             if 'SolubilityScore' not in pred_df.columns:
                 # Try to infer from available columns
-                if 'probability' in pred_df.columns:
+                if 'predict_result' in pred_df.columns:
+                    pred_df['SolubilityScore'] = pred_df['predict_result']
+                elif 'probability' in pred_df.columns:
                     pred_df['SolubilityScore'] = pred_df['probability']
                 elif 'pred_label' in pred_df.columns:
                     pred_df['SolubilityScore'] = pred_df['pred_label'].map(lambda x: 1 if x == 1 or str(x).lower() == 'soluble' else 0)
                 else:
-                    raise ValueError("Could not find expected prediction columns")
+                    raise ValueError(f"Could not find expected prediction columns. Available columns: {pred_df.columns.tolist()}")
                     
             pred_df['Probability_Soluble'] = pred_df['SolubilityScore']
             pred_df['Probability_Insoluble'] = 1 - pred_df['SolubilityScore']
@@ -178,6 +194,12 @@ def main():
             # Standardize columns
             if 'name' in pred_df.columns:
                 pred_df.rename(columns={'name': 'Accession'}, inplace=True)
+            
+            # Make sure all required columns exist
+            required_columns = ['Accession', 'Sequence', 'Predictor', 'SolubilityScore']
+            for col in required_columns:
+                if col not in pred_df.columns:
+                    raise ValueError(f"Required column '{col}' is missing after processing. Available columns: {pred_df.columns.tolist()}")
                 
             out_df = pred_df[['Accession', 'Sequence', 'Predictor', 'SolubilityScore', 'Probability_Soluble', 'Probability_Insoluble']]
             os.makedirs(os.path.dirname(args.out), exist_ok=True)
