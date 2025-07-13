@@ -92,7 +92,8 @@ print(f"Inference completed in {inference_end - inference_start:.2f} seconds")
 print(f"\n=== Step 3: Converting output format ===")
 convert_start = time.time()
 
-# The hardcoded output file from PLM_Sol is in the PLM_Sol directory
+# The hardcoded output file from PLM_Sol is ALWAYS "protTrans_prediction_result.csv", regardless of config
+# This is hardcoded in solver.py's predict_evaluation method
 prediction_file = os.path.join(plmsol_dir, "protTrans_prediction_result.csv")
 print(f"Looking for prediction file at: {prediction_file}")
 
