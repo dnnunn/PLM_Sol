@@ -69,7 +69,7 @@ def create_inference_config(embedding_path, remapping_path, model_param_path, ou
 def run_embedding_generation(config_path):
     """Run the embedding generation step."""
     print("\n=== Step 1: Generating embeddings ===")
-    cmd = f"python generate_embeddings_memory_efficient.py --config {config_path}"
+    cmd = f"bio_embeddings {config_path} --overwrite"
     print(f"Running command: {cmd}")
     
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
