@@ -12,6 +12,7 @@ Outputs CSV with columns:
 import argparse
 import os
 import subprocess
+import sys
 import tempfile
 import shutil
 import pandas as pd
@@ -70,8 +71,16 @@ def run_inference(config_path):
     # First remove any existing output file to ensure we get fresh results
     fixed_output_paths = [
         "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
-        os.path.join(wrapper_dir, "protTrans_prediction_result.csv")  # Local path
+        os.path.join(wrapper_dir, "protTrans_prediction_result.csv"),  # Local path in wrapper dir
+        "./protTrans_prediction_result.csv",  # Current working directory
+        os.path.join(os.path.dirname(config_path), "protTrans_prediction_result.csv")  # Config dir path
     ]
+    
+    print("Checking these possible output locations:")
+    for path in fixed_output_paths:
+        print(f"  - {path}")
+        if os.path.exists(path):
+            print(f"    (exists before inference run)")
     
     for path in fixed_output_paths:
         if os.path.exists(path):
@@ -120,9 +129,22 @@ def main():
     parser = argparse.ArgumentParser(description="Batch PLM_Sol predictor wrapper")
     parser.add_argument('--fasta', '-f', required=True, help='Input FASTA file')
     parser.add_argument('--out', '-o', required=True, help='Output CSV file')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode with persistent temp files')
     args = parser.parse_args()
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    # Create a persistent temp directory if in debug mode
+    if args.debug:
+        tmpdir = os.path.join(os.path.dirname(args.out), 'plmsol_debug_tmp')
+        os.makedirs(tmpdir, exist_ok=True)
+        print(f"Debug mode: Using persistent directory: {tmpdir}")
+        process_prediction(args, tmpdir)
+    else:
+        # Use standard temporary directory that will be cleaned up
+        with tempfile.TemporaryDirectory() as tmpdir:
+            process_prediction(args, tmpdir)
+
+
+def process_prediction(args, tmpdir):
         print(f"Using temporary directory: {tmpdir}")
         
         # Create necessary subdirectories
@@ -270,4 +292,10 @@ def create_fallback_output(fasta_path, output_path):
     print(f"Fallback results written to {output_path}")
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        print(f"Error in main execution: {e}")
+        traceback.print_exc()
+        sys.exit(1)
