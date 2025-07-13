@@ -1,0 +1,26 @@
+t5_embeddings:
+  sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/sequences_file.fasta
+  prefix: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb
+  simple_remapping: false
+  mapping_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/mapping_file.csv
+  remapped_sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/remapped_sequences_file.fasta
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: true
+  half_precision: true
+  stage_name: t5_embeddings
+  start_time: '2025-07-13 09:42:28.394865+00:00'
+  max_amino_acids: 5000
+  embeddings_transformer_function:
+  discard_per_amino_acid_embeddings: false
+  embeddings_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/t5_embeddings/embeddings_file.h5
+  reduce: false
+  end_time: '2025-07-13 09:44:12.911954+00:00'
+  elapsed_time: 0:01:44.517089
+global:
+  sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/sequences_file.fasta
+  prefix: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb
+  simple_remapping: false
+  mapping_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/mapping_file.csv
+  remapped_sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb/remapped_sequences_file.fasta
+  version: 0.2.2
