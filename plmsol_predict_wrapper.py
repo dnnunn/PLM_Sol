@@ -137,10 +137,24 @@ def main():
 
         # Step 5: Parse predictions and write standardized CSV
         # PLM_Sol inference script saves results to a fixed path rather than the config-specified path
-        actual_output_file = "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv"
-        if not os.path.exists(actual_output_file):
-            print(f"Warning: Output file not found at expected fixed location {actual_output_file}")
-            raise FileNotFoundError(f"Output file not found at {actual_output_file}")
+        # First try the VM path, then try local path
+        fixed_output_paths = [
+            "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "protTrans_prediction_result.csv")  # Local path
+        ]
+        
+        actual_output_file = None
+        for path in fixed_output_paths:
+            if os.path.exists(path):
+                actual_output_file = path
+                print(f"Found prediction results at {actual_output_file}")
+                break
+                
+        if actual_output_file is None:
+            print("Warning: Output file not found at any expected location:")
+            for path in fixed_output_paths:
+                print(f"  - {path}")
+            raise FileNotFoundError(f"Output file not found at any expected location")
             
         try:
             pred_df = pd.read_csv(actual_output_file)
