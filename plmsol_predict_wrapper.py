@@ -57,19 +57,31 @@ def run_embeddings(fasta_path, embeddings_dir):
     wrapper_dir = os.path.dirname(os.path.abspath(__file__))
     embed_script = os.path.join(wrapper_dir, 'generate_embeddings_memory_efficient.py')
     
-    # Run embedding generation with overwrite flag to handle existing outputs
+    # Check for existing embedding files and remove them
+    # This manually handles what --overwrite would do
+    embedding_file = os.path.join(abs_embeddings_dir, 'embeddings_file.h5')
+    if os.path.exists(embedding_file):
+        print(f"Removing existing embedding file: {embedding_file}")
+        os.remove(embedding_file)
+    
+    # Run embedding generation (without the unsupported --overwrite flag)
     cmd = [
         'python', embed_script,
-        '--config', config_path,
-        '--overwrite'  # Ensure it can overwrite existing embeddings
+        '--config', config_path
     ]
     
     print(f"Running embedding command: {' '.join(cmd)}")
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    # Print output regardless of success or failure
     if result.stdout:
         print(f"Embedding stdout: {result.stdout}")
     if result.stderr:
         print(f"Embedding stderr: {result.stderr}")
+    
+    # Check return code and raise error if failed
+    if result.returncode != 0:
+        raise RuntimeError(f"Embedding generation failed with code {result.returncode}: {result.stderr}")
     
     # Return the path to the embeddings file
     return os.path.join(abs_embeddings_dir, 'embeddings_file.h5')
