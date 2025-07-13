@@ -40,11 +40,17 @@ def run_embeddings(fasta_path, embeddings_dir):
     abs_fasta_path = os.path.abspath(fasta_path)
     abs_embeddings_dir = os.path.abspath(embeddings_dir)
     
-    # Configure embedding generation
+    # Configure embedding generation - exactly matching the working config structure
     config = {
         'global': {
             'sequences_file': abs_fasta_path,
             'prefix': abs_embeddings_dir
+        },
+        't5_embeddings': {
+            'type': 'embed',
+            'protocol': 'prottrans_t5_xl_u50',
+            'half_precision_model': True,
+            'half_precision': True
         }
     }
     
@@ -53,25 +59,12 @@ def run_embeddings(fasta_path, embeddings_dir):
     
     print(f"Created embeddings config at {config_path}")
     
-    # Get the directory of this wrapper script
-    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
-    embed_script = os.path.join(wrapper_dir, 'generate_embeddings_memory_efficient.py')
+    # CRITICAL FIX: Use bio_embeddings CLI command with --overwrite flag
+    # This ensures both embedding file AND remapped_sequences_file.fasta are created
+    cmd = f"bio_embeddings {config_path} --overwrite"
     
-    # Check for existing embedding files and remove them
-    # This manually handles what --overwrite would do
-    embedding_file = os.path.join(abs_embeddings_dir, 'embeddings_file.h5')
-    if os.path.exists(embedding_file):
-        print(f"Removing existing embedding file: {embedding_file}")
-        os.remove(embedding_file)
-    
-    # Run embedding generation (without the unsupported --overwrite flag)
-    cmd = [
-        'python', embed_script,
-        '--config', config_path
-    ]
-    
-    print(f"Running embedding command: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    print(f"Running embedding command: {cmd}")
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     
     # Print output regardless of success or failure
     if result.stdout:
@@ -87,134 +80,132 @@ def run_embeddings(fasta_path, embeddings_dir):
     # Note: bio_embeddings tool creates a t5_embeddings/ subdirectory
     return os.path.join(abs_embeddings_dir, 't5_embeddings', 'embeddings_file.h5')
 
-def run_inference(embeddings_file, fasta_path, tmpdir):
+def run_inference(embeddings_file, remapped_sequences_file, tmpdir):
     """Run the PLM_Sol inference with the hardcoded output filename handling"""
-    # Get the directory of this wrapper script
-    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
-    inference_script = os.path.join(wrapper_dir, 'inference.py')
+    # Get the directory of this wrapper script - this is the PLM_Sol root directory
+    plmsol_root = os.path.dirname(os.path.abspath(__file__))
+    inference_script = os.path.join(plmsol_root, 'inference.py')
     
-    # Create remapped sequences file (just a copy of the input FASTA)
-    remapped_path = os.path.join(tmpdir, 'remapped_sequences_file.fasta')
-    shutil.copy(fasta_path, remapped_path)
-    print(f"Created remapped sequences file at {remapped_path}")
+    # CRITICAL: We must use the remapped_sequences_file from bio_embeddings
+    # NOT create our own remapped file as it must match the embedding keys
+    print(f"Using remapped sequences file at {remapped_sequences_file}")
     
-    # Create inference config
+    # Create inference config with the CORRECT key_format
     config_path = os.path.join(tmpdir, 'inference_config.yml')
-    checkpoint_path = os.path.join(wrapper_dir, 'model_param', 'model_param.t7')
+    checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
     
-    # Construct inference configuration
+    # Construct inference configuration with key_format="fasta_descriptor"
     config = {
-        'embeddings_file': os.path.abspath(embeddings_file),
-        'remapping': os.path.abspath(remapped_path),
-        'output_file': 'lacZ_inference',  # This will be ignored by PLM_Sol
-        'model_type': 'biLSTM_TextCNN',
-        'checkpoint': os.path.abspath(checkpoint_path),
-        'model_parameters': {
-            'embeddings_dim': 1024,  # T5 embeddings are 1024-dimensional
-            'dropout': 0.5,
-        },
-        'embedding_mode': 'mean',
-        'key_format': 'hash',
+        'output_files_name': 'test_inference',
+        'log_iterations': 100,
+        'n_draws': 1000,
+        'batch_size': 1,
+        'checkpoints_list': [checkpoint_path],
+        'embeddings': os.path.abspath(embeddings_file),
+        'remapping': os.path.abspath(remapped_sequences_file),
+        'key_format': 'fasta_descriptor'  # CRITICAL: This must be fasta_descriptor
     }
     
+    # Write the config file
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
-    
     print(f"Created inference config at {config_path}")
     
-    # IMPORTANT: PLM_Sol hardcodes the output to 'protTrans_prediction_result.csv'
-    expected_output_file = os.path.join(wrapper_dir, 'protTrans_prediction_result.csv')
-    
-    # Remove any existing output file
-    if os.path.exists(expected_output_file):
-        print(f"Removing existing output file at {expected_output_file}")
-        os.remove(expected_output_file)
-    
-    # Save current directory to return to it later
-    original_dir = os.getcwd()
+    # CRITICAL: Save current working directory
+    original_cwd = os.getcwd()
     
     try:
-        # Change to wrapper directory before running inference
-        # This ensures the hardcoded output path works predictably
-        print(f"Changing working directory to: {wrapper_dir}")
-        os.chdir(wrapper_dir)
+        # CRITICAL: Change to PLM_Sol root directory for inference
+        os.chdir(plmsol_root)
+        print(f"Changed working directory to {plmsol_root} for inference")
         
-        # Run inference
-        cmd = [
-            'python', inference_script,
-            '--config', config_path
-        ]
+        # Run inference - using absolute path to config since we changed directories
+        abs_config_path = os.path.abspath(config_path)
+        cmd = f"python inference.py --config {abs_config_path}"
         
-        print(f"Running inference command: {' '.join(cmd)}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=120)
+        print(f"Running inference command: {cmd}")
+        
+        # Run inference process
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        
+        # Print output regardless of success or failure
         if result.stdout:
             print(f"Inference stdout: {result.stdout}")
         if result.stderr:
             print(f"Inference stderr: {result.stderr}")
-            
-    except subprocess.TimeoutExpired as e:
-        print(f"Inference timed out after {e.timeout} seconds")
-        print(f"Stdout: {e.stdout if hasattr(e, 'stdout') else 'Not captured'}")
-        print(f"Stderr: {e.stderr if hasattr(e, 'stderr') else 'Not captured'}")
-        raise
-    except subprocess.CalledProcessError as e:
-        print(f"Inference failed with exit code {e.returncode}")
-        print(f"Stdout: {e.stdout}")
-        print(f"Stderr: {e.stderr}")
-        raise
-    finally:
-        # Always return to the original directory
-        os.chdir(original_dir)
-    
-    # Wait for output file to appear (longer timeout for larger datasets)
-    max_wait_time = 60  # seconds (increased from 30)
-    wait_interval = 2   # seconds
-    waited = 0
-    
-    while waited < max_wait_time:
-        if os.path.exists(expected_output_file) and os.path.getsize(expected_output_file) > 0:
-            print(f"Found output file at {expected_output_file} after {waited} seconds")
-            return expected_output_file
+        
+        # Check return code
+        if result.returncode != 0:
+            print(f"Inference failed with code {result.returncode}")
+            print(result.stderr)
+            return None
+        
+        # CRITICAL: PLM_Sol hardcodes the output file name in the root directory
+        hardcoded_output = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
+        if os.path.exists(hardcoded_output):
+            print(f"Found hardcoded output file at {hardcoded_output}")
+            return hardcoded_output
         else:
-            print(f"Waiting for output file... ({waited}/{max_wait_time} seconds)")
-            # Check if we can see other files that might have been created
-            if waited % 10 == 0:  # Every 10 seconds
-                print(f"Checking for other files in output directory: {wrapper_dir}")
-                files = [f for f in os.listdir(wrapper_dir) if f.endswith('.csv')]
-                if files:
-                    print(f"Found these CSV files: {files}")
-            time.sleep(wait_interval)
-            waited += wait_interval
-    
-    # If we get here, we didn't find the output file
-    print(f"No output file found at {expected_output_file} after waiting {max_wait_time} seconds")
-    # Final attempt to find any CSV output
-    csv_files = [f for f in os.listdir(wrapper_dir) if f.endswith('.csv')]
-    if csv_files:
-        print(f"Found these CSV files in the directory: {csv_files}")
-        if len(csv_files) == 1 and csv_files[0] != os.path.basename(expected_output_file):
-            # If there's exactly one CSV and it's not our expected file, use it
-            alt_output = os.path.join(wrapper_dir, csv_files[0])
-            print(f"Using alternative output file: {alt_output}")
-            return alt_output
-    return None
+            print(f"Expected output file not found at {hardcoded_output}")
+            return None
+    finally:
+        # CRITICAL: Return to original working directory
+        os.chdir(original_cwd)
+        print(f"Restored working directory to {original_cwd}")
 
 def format_results(prediction_file, fasta_path, output_path):
     """Format the PLM_Sol results to match the benchmarking standard"""
     try:
-        # Read the PLM_Sol output file
+        # Read the PLM_Sol output file - contains MD5 hashes as protein_ID
         pred_df = pd.read_csv(prediction_file)
         print(f"Read prediction file with columns: {pred_df.columns.tolist()}")
         
-        # Get the sequences from the FASTA file
+        # CRITICAL: Find the remapped sequences file in the same directory as embeddings_file
+        # We need this to map the MD5 hashes back to the original sequence IDs
+        plmsol_root = os.path.dirname(os.path.abspath(__file__))
+        remapped_files = []
+        for root, dirs, files in os.walk(plmsol_root):
+            for file in files:
+                if file == 'remapped_sequences_file.fasta':
+                    remapped_files.append(os.path.join(root, file))
+        
+        if not remapped_files:
+            print("ERROR: Could not find remapped sequences file")
+            return False
+        
+        # Use the most recently modified remapped sequences file
+        remapped_path = sorted(remapped_files, key=os.path.getmtime, reverse=True)[0]
+        print(f"Using remapped sequences file: {remapped_path}")
+        
+        # Create mapping from MD5 hash to original sequence ID
+        hash_to_id = {}
+        for record in SeqIO.parse(remapped_path, "fasta"):
+            # The record.description contains the original ID after the first space
+            description_parts = record.description.split()
+            if len(description_parts) > 1:
+                original_id = description_parts[1]
+                hash_to_id[record.id] = original_id
+        
+        # Get the sequences from the original FASTA file
         seqs = {rec.id: str(rec.seq) for rec in SeqIO.parse(fasta_path, "fasta")}
+        
+        # Map protein_ID (MD5 hash) to original sequence ID and add sequence
+        if 'protein_ID' in pred_df.columns:
+            mapped_ids = []
+            for hash_id in pred_df['protein_ID']:
+                if hash_id in hash_to_id:
+                    mapped_ids.append(hash_to_id[hash_id])
+                else:
+                    # Keep the hash if no mapping found
+                    mapped_ids.append(hash_id)
+            
+            pred_df['Accession'] = mapped_ids
+            
+            # Add sequence column by matching Accession to original sequence
+            pred_df['Sequence'] = [seqs.get(acc, "") for acc in pred_df['Accession']]
         
         # Add the predictor name
         pred_df['Predictor'] = 'PLM_Sol'
-        
-        # Standardize column names
-        if 'protein_ID' in pred_df.columns:
-            pred_df.rename(columns={'protein_ID': 'Accession'}, inplace=True)
         
         if 'sequence' in pred_df.columns:
             pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
@@ -315,8 +306,20 @@ def run_pipeline(fasta_path, output_path, tmpdir):
         os.makedirs(embeddings_dir, exist_ok=True)
         embeddings_file = run_embeddings(fasta_path, embeddings_dir)
         
-        # Step 2: Run inference
-        prediction_file = run_inference(embeddings_file, fasta_path, tmpdir)
+        # CRITICAL: Find the remapped_sequences_file produced by bio_embeddings
+        # It will be in the same directory as the embeddings file but one level up
+        remapped_sequences_file = os.path.join(os.path.dirname(os.path.dirname(embeddings_file)), 
+                                            'remapped_sequences_file.fasta')
+        
+        if not os.path.exists(remapped_sequences_file):
+            print(f"ERROR: Could not find remapped sequences file at {remapped_sequences_file}")
+            print("Using fallback output")
+            return create_fallback_output(fasta_path, output_path)
+            
+        print(f"Found remapped sequences file at {remapped_sequences_file}")
+        
+        # Step 2: Run inference with the remapped sequences file
+        prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir)
         
         if prediction_file and os.path.exists(prediction_file):
             # Step 3: Format results
