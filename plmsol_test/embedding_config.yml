@@ -1,7 +1,0 @@
-embeddings:
-  options: {}
-  protocol: word2vec
-  type: embed
-global:
-  prefix: plmsol_test/embeddings
-  sequences_file: plmsol_test/test.fasta
