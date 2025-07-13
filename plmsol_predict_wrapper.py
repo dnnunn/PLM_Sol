@@ -63,43 +63,46 @@ def run_inference(config_path):
     wrapper_dir = os.path.dirname(os.path.abspath(__file__))
     # Use absolute path to the script
     inference_script = os.path.join(wrapper_dir, 'inference.py')
+    
+    # The output file is hardcoded to "protTrans_prediction_result.csv" in solver.py
+    # So we'll run the inference from our wrapper directory to control where it's created
+    expected_output_file = os.path.join(wrapper_dir, "protTrans_prediction_result.csv")
+    
     cmd = [
         'python', inference_script,
         '--config', config_path
     ]
     
     # First remove any existing output file to ensure we get fresh results
-    fixed_output_paths = [
-        "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
-        os.path.join(wrapper_dir, "protTrans_prediction_result.csv"),  # Local path in wrapper dir
-        "./protTrans_prediction_result.csv",  # Current working directory
-        os.path.join(os.path.dirname(config_path), "protTrans_prediction_result.csv")  # Config dir path
-    ]
-    
-    print("Checking these possible output locations:")
-    for path in fixed_output_paths:
-        print(f"  - {path}")
-        if os.path.exists(path):
-            print(f"    (exists before inference run)")
-    
-    for path in fixed_output_paths:
-        if os.path.exists(path):
-            print(f"Removing existing output file at {path}")
-            os.remove(path)
+    if os.path.exists(expected_output_file):
+        print(f"Removing existing output file at {expected_output_file}")
+        os.remove(expected_output_file)
             
-    # Run the inference script
-    print(f"Running inference command: {' '.join(cmd)}")
+    # Save current directory so we can return to it
+    original_dir = os.getcwd()
+    
     try:
-        # Capture and print output to help with debugging
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print(f"Inference stdout:\n{result.stdout}")
-        if result.stderr:
-            print(f"Inference stderr:\n{result.stderr}")
-    except subprocess.CalledProcessError as e:
-        print(f"Inference failed with exit code {e.returncode}")
-        print(f"Stdout: {e.stdout}")
-        print(f"Stderr: {e.stderr}")
-        raise
+        # Change to the wrapper directory where inference.py exists
+        # This ensures the hardcoded output path in solver.py will create the file here
+        print(f"Changing working directory to: {wrapper_dir}")
+        os.chdir(wrapper_dir)
+        
+        # Run the inference script
+        print(f"Running inference command: {' '.join(cmd)}")
+        try:
+            # Capture and print output to help with debugging
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            print(f"Inference stdout:\n{result.stdout}")
+            if result.stderr:
+                print(f"Inference stderr:\n{result.stderr}")
+        except subprocess.CalledProcessError as e:
+            print(f"Inference failed with exit code {e.returncode}")
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
+            raise
+    finally:
+        # Always return to the original directory
+        os.chdir(original_dir)
     
     # Wait for the output file to appear (with timeout)
     max_wait_time = 180  # seconds - increased wait time
@@ -107,37 +110,58 @@ def run_inference(config_path):
     waited = 0
     output_file_found = None
     
+    # Since we changed the working directory before running inference,
+    # the output should be at the expected_output_file path
+    print(f"Waiting for output file at: {expected_output_file}")
+    
     while waited < max_wait_time and output_file_found is None:
-        for path in fixed_output_paths:
-            if os.path.exists(path) and os.path.getsize(path) > 0:
-                print(f"Output file appeared at {path} after {waited} seconds")
-                output_file_found = path
-                break
-        
-        if output_file_found is None:
+        if os.path.exists(expected_output_file) and os.path.getsize(expected_output_file) > 0:
+            print(f"Output file appeared at {expected_output_file} after {waited} seconds")
+            output_file_found = expected_output_file
+        else:
             print(f"Waiting for output file... ({waited}/{max_wait_time} seconds)")
             time.sleep(wait_interval)
             waited += wait_interval
             
     if output_file_found is None:
         print("No output file was generated within the timeout period")
+        # Check other possible locations as fallback
+        alt_paths = [
+            "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
+            "./protTrans_prediction_result.csv",                        # Current working directory
+        ]
+        
+        for path in alt_paths:
+            if os.path.exists(path) and os.path.getsize(path) > 0:
+                print(f"Found output at alternate location: {path}")
+                return path
+                
         return None
     
     return output_file_found
 
 def main():
+    """Main function to handle PLM_Sol batch predictions"""
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Batch PLM_Sol predictor wrapper")
     parser.add_argument('--fasta', '-f', required=True, help='Input FASTA file')
     parser.add_argument('--out', '-o', required=True, help='Output CSV file')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode with persistent temp files')
+    parser.add_argument('--debug', action='store_true', help='Keep temporary files for debugging')
     args = parser.parse_args()
-
-    # Create a persistent temp directory if in debug mode
+    
+    # Use a context manager for the temporary directory
+    # In debug mode, we'll keep the temp dir by not using the context manager
     if args.debug:
-        tmpdir = os.path.join(os.path.dirname(args.out), 'plmsol_debug_tmp')
-        os.makedirs(tmpdir, exist_ok=True)
-        print(f"Debug mode: Using persistent directory: {tmpdir}")
-        process_prediction(args, tmpdir)
+        # In debug mode, create a persistent temporary directory
+        tmpdir = tempfile.mkdtemp(prefix="plmsol_debug_")
+        print(f"Debug mode: Temporary directory will be preserved at: {tmpdir}")
+        try:
+            process_prediction(args, tmpdir)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            print(f"Debug files preserved in: {tmpdir}")
+            raise
+        print(f"Processing complete. Debug files preserved in: {tmpdir}")
     else:
         # Use standard temporary directory that will be cleaned up
         with tempfile.TemporaryDirectory() as tmpdir:
