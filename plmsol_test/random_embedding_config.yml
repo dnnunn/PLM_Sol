@@ -1,8 +1,0 @@
-global:
-  prefix: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb
-  sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined.fasta
-t5_embeddings:
-  half_precision: true
-  half_precision_model: true
-  protocol: prottrans_t5_xl_u50
-  type: embed
