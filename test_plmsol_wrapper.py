@@ -16,13 +16,18 @@ def main():
     
     # Create a temporary directory for test files
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a small test FASTA with a few sequences
+        # Create a small test FASTA with DIFFERENT sequences (to avoid MD5 clash)
         test_fasta = os.path.join(tmpdir, "test_seqs.fasta")
         with open(test_fasta, "w") as f:
-            f.write(">seq1 Test sequence 1\n")
+            # Sequence 1 - Spike protein fragment
+            f.write(">seq1 Spike protein fragment\n")
             f.write("MFVFLVLLPLVSSQCVNLTTRTQLPPAYTNSFTRGVYYPDKVFRSSVLHSTQDLFLPFFSNVTWFHAIHVSGTNGTKRFDNPVLPFNDGVY\n")
-            f.write(">seq2 Test sequence 2\n")
-            f.write("MFVFLVLLPLVSSQCVNLTTRTQLPPAYTNSFTRGVYYPDKVFRSSVLHSTQDLFLPFFSNVTWFHAIHVSGTNGTKRFDNPVLPFNDGVY\n")
+            # Sequence 2 - Different protein fragment (ACE2)
+            f.write(">seq2 ACE2 fragment\n")
+            f.write("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLASWNYNTNITEENVQNMNNAGDKWSAFLKEQSTLAQMYPLQEIQNL\n")
+            # Sequence 3 - Another protein fragment (Hemoglobin)
+            f.write(">seq3 Hemoglobin fragment\n")
+            f.write("MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSEL\n")
         
         # Output path for results
         results_csv = os.path.join(tmpdir, "results.csv")
