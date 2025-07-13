@@ -64,7 +64,8 @@ def run_inference(config_path):
     # Use absolute path to the script
     inference_script = os.path.join(wrapper_dir, 'inference.py')
     
-    # The output file is hardcoded to "protTrans_prediction_result.csv" in solver.py
+    # IMPORTANT: The output file is hardcoded to "protTrans_prediction_result.csv" in solver.py's predict_evaluation method
+    # This means the output file path in the config file is completely ignored by the inference script
     # So we'll run the inference from our wrapper directory to control where it's created
     expected_output_file = os.path.join(wrapper_dir, "protTrans_prediction_result.csv")
     
