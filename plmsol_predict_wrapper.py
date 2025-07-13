@@ -82,20 +82,35 @@ def run_inference(config_path):
     # Save current directory so we can return to it
     original_dir = os.getcwd()
     
+    # Check for required model directory
+    model_param_dir = os.path.join(wrapper_dir, "model_param")
+    if not os.path.exists(model_param_dir):
+        print(f"WARNING: model_param directory not found at {model_param_dir}")
+        print("This may cause the inference to fail silently.")
+    elif not os.path.exists(os.path.join(model_param_dir, "train_arguments.yml")):
+        print(f"WARNING: train_arguments.yml not found in {model_param_dir}")
+        print("This may cause the inference to fail silently.")
+    
     try:
         # Change to the wrapper directory where inference.py exists
         # This ensures the hardcoded output path in solver.py will create the file here
         print(f"Changing working directory to: {wrapper_dir}")
         os.chdir(wrapper_dir)
         
-        # Run the inference script
+        # Run the inference script with a timeout
         print(f"Running inference command: {' '.join(cmd)}")
         try:
             # Capture and print output to help with debugging
-            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            # Add a timeout to avoid hanging indefinitely
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=120)
             print(f"Inference stdout:\n{result.stdout}")
             if result.stderr:
                 print(f"Inference stderr:\n{result.stderr}")
+        except subprocess.TimeoutExpired as e:
+            print(f"Inference timed out after {e.timeout} seconds")
+            print(f"Stdout: {e.stdout if hasattr(e, 'stdout') else 'Not captured'}")
+            print(f"Stderr: {e.stderr if hasattr(e, 'stderr') else 'Not captured'}")
+            raise
         except subprocess.CalledProcessError as e:
             print(f"Inference failed with exit code {e.returncode}")
             print(f"Stdout: {e.stdout}")
