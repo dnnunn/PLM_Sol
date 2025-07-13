@@ -7,4 +7,4 @@ model_parameters:
   embeddings_dim: 1024
   dropout: 0.5
 embedding_mode: mean
-key_format: hash
+key_format: id
