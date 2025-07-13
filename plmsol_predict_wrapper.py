@@ -91,9 +91,7 @@ def main():
             run_embeddings(embed_config_path)
         except Exception as e:
             print(f"Error during embedding generation: {e}")
-            # Create fallback minimal output
-            create_fallback_output(args.fasta, args.out)
-            return
+            raise
             
         embeddings_file = os.path.join(tmpdir, 't5_embeddings', 'embeddings_file.h5')
         remapped_fasta = os.path.join(tmpdir, 'remapped_sequences_file.fasta')
@@ -112,9 +110,8 @@ def main():
                     print(f"Found embeddings at {loc}")
                     break
             if not found:
-                print("Could not find embeddings file, creating fallback output")
-                create_fallback_output(args.fasta, args.out)
-                return
+                print("Could not find embeddings file")
+                raise FileNotFoundError("Embeddings file not found")
         
         fasta_to_remapped(args.fasta, remapped_fasta)
 
@@ -136,15 +133,12 @@ def main():
             run_inference(infer_config_path)
         except Exception as e:
             print(f"Error during inference: {e}")
-            create_fallback_output(args.fasta, args.out)
-            return
+            raise
 
         # Step 5: Parse predictions and write standardized CSV
         if not os.path.exists(output_file):
             print(f"Warning: Output file not found at {output_file}")
-            print("Generating fallback output")
-            create_fallback_output(args.fasta, args.out)
-            return
+            raise FileNotFoundError(f"Output file not found at {output_file}")
             
         try:
             pred_df = pd.read_csv(output_file)
@@ -160,7 +154,7 @@ def main():
                 elif 'pred_label' in pred_df.columns:
                     pred_df['SolubilityScore'] = pred_df['pred_label'].map(lambda x: 1 if x == 1 or str(x).lower() == 'soluble' else 0)
                 else:
-                    pred_df['SolubilityScore'] = 0.5  # Default neutral score
+                    raise ValueError("Could not find expected prediction columns")
                     
             pred_df['Probability_Soluble'] = pred_df['SolubilityScore']
             pred_df['Probability_Insoluble'] = 1 - pred_df['SolubilityScore']
@@ -175,7 +169,7 @@ def main():
             print(f"Results written to {args.out}")
         except Exception as e:
             print(f"Error processing results: {e}")
-            create_fallback_output(args.fasta, args.out)
+            raise
 
 def create_fallback_output(fasta_path, output_path):
     """Create a fallback output CSV if prediction fails"""
