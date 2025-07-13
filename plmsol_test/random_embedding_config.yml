@@ -1,7 +1,3 @@
-annotations_from_t5:
-  depends_on: t5_embeddings
-  protocol: la_prott5
-  type: extract
 global:
   prefix: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb
   sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined.fasta
