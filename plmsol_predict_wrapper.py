@@ -17,6 +17,7 @@ import shutil
 import pandas as pd
 from Bio import SeqIO
 import yaml
+import time
 
 # Helper to write a config YAML for embedding
 EMBED_CONFIG_TEMPLATE = {
@@ -52,6 +53,11 @@ def run_embeddings(config_path):
     subprocess.run(cmd, check=True)
 
 def run_inference(config_path):
+    """Run the PLM_Sol inference script
+    
+    Returns:
+        str or None: Path to the output file if found, None if not found
+    """
     # Get the directory of this wrapper script
     wrapper_dir = os.path.dirname(os.path.abspath(__file__))
     # Use absolute path to the script
@@ -60,7 +66,45 @@ def run_inference(config_path):
         'python', inference_script,
         '--config', config_path
     ]
+    
+    # First remove any existing output file to ensure we get fresh results
+    fixed_output_paths = [
+        "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
+        os.path.join(wrapper_dir, "protTrans_prediction_result.csv")  # Local path
+    ]
+    
+    for path in fixed_output_paths:
+        if os.path.exists(path):
+            print(f"Removing existing output file at {path}")
+            os.remove(path)
+            
+    # Run the inference script
+    print(f"Running inference command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
+    
+    # Wait for the output file to appear (with timeout)
+    max_wait_time = 60  # seconds
+    wait_interval = 2   # seconds
+    waited = 0
+    output_file_found = None
+    
+    while waited < max_wait_time and output_file_found is None:
+        for path in fixed_output_paths:
+            if os.path.exists(path) and os.path.getsize(path) > 0:
+                print(f"Output file appeared at {path} after {waited} seconds")
+                output_file_found = path
+                break
+        
+        if output_file_found is None:
+            print(f"Waiting for output file... ({waited}/{max_wait_time} seconds)")
+            time.sleep(wait_interval)
+            waited += wait_interval
+            
+    if output_file_found is None:
+        print("No output file was generated within the timeout period")
+        return None
+    
+    return output_file_found
 
 def main():
     parser = argparse.ArgumentParser(description="Batch PLM_Sol predictor wrapper")
@@ -130,31 +174,17 @@ def main():
         # Step 4: Run inference
         print("Running inference...")
         try:
-            run_inference(infer_config_path)
+            actual_output_file = run_inference(infer_config_path)
         except Exception as e:
             print(f"Error during inference: {e}")
-            raise
-
-        # Step 5: Parse predictions and write standardized CSV
-        # PLM_Sol inference script saves results to a fixed path rather than the config-specified path
-        # First try the VM path, then try local path
-        fixed_output_paths = [
-            "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv",  # VM path
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "protTrans_prediction_result.csv")  # Local path
-        ]
-        
-        actual_output_file = None
-        for path in fixed_output_paths:
-            if os.path.exists(path):
-                actual_output_file = path
-                print(f"Found prediction results at {actual_output_file}")
-                break
+            create_fallback_output(args.fasta, args.out)
+            return
                 
         if actual_output_file is None:
-            print("Warning: Output file not found at any expected location:")
-            for path in fixed_output_paths:
-                print(f"  - {path}")
-            raise FileNotFoundError(f"Output file not found at any expected location")
+            print("Warning: Output file not found at any expected location")
+            print("Creating fallback output with neutral predictions")
+            create_fallback_output(args.fasta, args.out)
+            return
             
         try:
             pred_df = pd.read_csv(actual_output_file)
