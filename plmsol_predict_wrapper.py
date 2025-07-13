@@ -136,12 +136,14 @@ def main():
             raise
 
         # Step 5: Parse predictions and write standardized CSV
-        if not os.path.exists(output_file):
-            print(f"Warning: Output file not found at {output_file}")
-            raise FileNotFoundError(f"Output file not found at {output_file}")
+        # PLM_Sol inference script saves results to a fixed path rather than the config-specified path
+        actual_output_file = "/home/david_nunn/PLM_Sol/protTrans_prediction_result.csv"
+        if not os.path.exists(actual_output_file):
+            print(f"Warning: Output file not found at expected fixed location {actual_output_file}")
+            raise FileNotFoundError(f"Output file not found at {actual_output_file}")
             
         try:
-            pred_df = pd.read_csv(output_file)
+            pred_df = pd.read_csv(actual_output_file)
             seqs = {rec.id: str(rec.seq) for rec in SeqIO.parse(args.fasta, "fasta")}
             pred_df['Predictor'] = 'PLM_Sol'
             pred_df['Sequence'] = pred_df['Accession'].map(seqs)
