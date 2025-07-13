@@ -42,6 +42,58 @@ def fasta_to_remapped(fasta_path, remapped_path):
     # PLM_Sol expects remapped_sequences_file.fasta in FASTA format
     shutil.copy(fasta_path, remapped_path)
 
+def create_inference_config(embed_dir, output_file, remapped_fasta, tmpdir):
+    """Create inference configuration file"""
+    config_path = os.path.join(tmpdir, 'infer_config.yml')
+    
+    # Get the directory of this wrapper script
+    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Get train_arguments.yml content to extract correct model parameters
+    train_args_path = os.path.join(wrapper_dir, 'model_param', 'train_arguments.yml')
+    model_type = "biLSTM_TextCNN"  # Default model type
+    checkpoint_path = os.path.join(wrapper_dir, 'model_param', 'model_param.t7')
+    
+    try:
+        if os.path.exists(train_args_path):
+            with open(train_args_path, 'r') as f:
+                train_args = yaml.safe_load(f)
+                # Try to extract model_type if present
+                if 'model_type' in train_args:
+                    model_type = train_args['model_type']
+                    print(f"Using model_type from train_arguments.yml: {model_type}")
+    except Exception as e:
+        print(f"Warning: Could not read train_arguments.yml: {e}")
+    
+    # Construct inference configuration
+    config = {
+        'embeddings_file': os.path.join(embed_dir, 'embeddings_file.h5'),
+        'remapping': remapped_fasta,
+        'output_file': output_file,
+        'model_type': model_type,
+        'checkpoint': checkpoint_path,
+        'model_parameters': {
+            'hidden_dim': 512,
+            'dropout': 0.5,
+            'max_len': 1000
+        },
+        'embedding_mode': 'mean',
+        'key_format': 'hash',
+        'optimizer_parameters': {
+            'lr': 1e-5
+        }
+    }
+    
+    # Write configuration to YAML file
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
+    
+    print(f"Created inference config at {config_path}")
+    print(f"Using model type: {model_type}")
+    print(f"Using checkpoint: {checkpoint_path}")
+    
+    return config_path
+
 def run_embeddings(config_path):
     # Get the directory of this wrapper script
     wrapper_dir = os.path.dirname(os.path.abspath(__file__))
@@ -268,14 +320,8 @@ def process_prediction(args, tmpdir):
         fasta_to_remapped(args.fasta, remapped_fasta)
 
         # Step 3: Prepare inference config
-        infer_config = INFER_CONFIG_TEMPLATE.copy()
-        infer_config['global']['embeddings_file'] = embeddings_file
-        infer_config['global']['remapping'] = remapped_fasta
         output_file = os.path.join(tmpdir, 'plmsol_predictions.csv')
-        infer_config['global']['output_file'] = output_file
-        infer_config_path = os.path.join(tmpdir, 'infer_config.yml')
-        with open(infer_config_path, 'w') as f:
-            yaml.safe_dump(infer_config, f)
+        infer_config_path = create_inference_config(t5_embeddings_dir, output_file, remapped_fasta, tmpdir)
         
         print(f"Generated inference config at {infer_config_path}")
 
