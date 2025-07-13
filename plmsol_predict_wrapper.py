@@ -66,6 +66,8 @@ def create_inference_config(embed_dir, output_file, remapped_fasta, tmpdir):
         print(f"Warning: Could not read train_arguments.yml: {e}")
     
     # Construct inference configuration
+    # IMPORTANT: Fixed model parameters based on error message
+    # The model doesn't accept 'hidden_dim' parameter, just use embeddings_dim and dropout
     config = {
         'embeddings_file': os.path.join(embed_dir, 'embeddings_file.h5'),
         'remapping': remapped_fasta,
@@ -73,15 +75,13 @@ def create_inference_config(embed_dir, output_file, remapped_fasta, tmpdir):
         'model_type': model_type,
         'checkpoint': checkpoint_path,
         'model_parameters': {
-            'hidden_dim': 512,
+            # Changed from hidden_dim to match biLSTM_TextCNN's expected parameters
+            'embeddings_dim': 1024,  # T5 embeddings are 1024-dimensional
             'dropout': 0.5,
-            'max_len': 1000
+            # Removed max_len as it's not accepted by the model
         },
         'embedding_mode': 'mean',
         'key_format': 'hash',
-        'optimizer_parameters': {
-            'lr': 1e-5
-        }
     }
     
     # Write configuration to YAML file
@@ -91,6 +91,7 @@ def create_inference_config(embed_dir, output_file, remapped_fasta, tmpdir):
     print(f"Created inference config at {config_path}")
     print(f"Using model type: {model_type}")
     print(f"Using checkpoint: {checkpoint_path}")
+    print(f"Using fixed model parameters that match the expected signature")
     
     return config_path
 
