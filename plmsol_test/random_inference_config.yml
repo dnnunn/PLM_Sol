@@ -1,9 +1,0 @@
-batch_size: 1
-checkpoints_list:
-- ./model_param/model_param.t7
-embeddings: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb/t5_embeddings/embeddings_file.h5
-key_format: fasta_descriptor
-log_iterations: 100
-n_draws: 1000
-output_files_name: random_inference
-remapping: /home/david_nunn/PLM_Sol/plmsol_test/random_proteins_combined_emb/remapped_sequences_file.fasta

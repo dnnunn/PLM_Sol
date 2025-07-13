@@ -1,8 +1,0 @@
-global:
-  sequences_file: /home/david_nunn/PLM_Sol/plmsol_test/lacZ.fasta
-  prefix: /home/david_nunn/PLM_Sol/plmsol_test/lacZ_emb
-t5_embeddings:
-  type: embed
-  protocol: prottrans_t5_xl_u50
-  half_precision_model: true
-  half_precision: true
