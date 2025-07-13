@@ -56,13 +56,22 @@ print(f"Embedding completed in {embed_end - embed_start:.2f} seconds")
 # Step 2: Run inference
 print(f"\n=== Step 2: Running inference ===")
 inference_start = time.time()
+
+# Important: Change to PLM_Sol directory for inference
+plmsol_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(plmsol_dir)
+print(f"Changed working directory to: {plmsol_dir}")
+
 inference_cmd = [
     "python", 
-    "../inference.py", 
+    "inference.py", 
     "--config", INFERENCE_CONFIG
 ]
 print(f"Running command: {' '.join(inference_cmd)}")
 inference_result = subprocess.run(inference_cmd, capture_output=True, text=True)
+
+# Change back to original directory
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 inference_end = time.time()
 
 # Print inference output
@@ -83,8 +92,9 @@ print(f"Inference completed in {inference_end - inference_start:.2f} seconds")
 print(f"\n=== Step 3: Converting output format ===")
 convert_start = time.time()
 
-# The hardcoded output file from PLM_Sol
-prediction_file = "../protTrans_prediction_result.csv"
+# The hardcoded output file from PLM_Sol is in the PLM_Sol directory
+prediction_file = os.path.join(plmsol_dir, "protTrans_prediction_result.csv")
+print(f"Looking for prediction file at: {prediction_file}")
 
 if os.path.exists(prediction_file):
     # Read the prediction file
