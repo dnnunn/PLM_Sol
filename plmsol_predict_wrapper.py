@@ -84,7 +84,8 @@ def run_embeddings(fasta_path, embeddings_dir):
         raise RuntimeError(f"Embedding generation failed with code {result.returncode}: {result.stderr}")
     
     # Return the path to the embeddings file
-    return os.path.join(abs_embeddings_dir, 'embeddings_file.h5')
+    # Note: bio_embeddings tool creates a t5_embeddings/ subdirectory
+    return os.path.join(abs_embeddings_dir, 't5_embeddings', 'embeddings_file.h5')
 
 def run_inference(embeddings_file, fasta_path, tmpdir):
     """Run the PLM_Sol inference with the hardcoded output filename handling"""
@@ -165,8 +166,8 @@ def run_inference(embeddings_file, fasta_path, tmpdir):
         # Always return to the original directory
         os.chdir(original_dir)
     
-    # Wait for output file to appear
-    max_wait_time = 30  # seconds
+    # Wait for output file to appear (longer timeout for larger datasets)
+    max_wait_time = 60  # seconds (increased from 30)
     wait_interval = 2   # seconds
     waited = 0
     
@@ -176,11 +177,26 @@ def run_inference(embeddings_file, fasta_path, tmpdir):
             return expected_output_file
         else:
             print(f"Waiting for output file... ({waited}/{max_wait_time} seconds)")
+            # Check if we can see other files that might have been created
+            if waited % 10 == 0:  # Every 10 seconds
+                print(f"Checking for other files in output directory: {wrapper_dir}")
+                files = [f for f in os.listdir(wrapper_dir) if f.endswith('.csv')]
+                if files:
+                    print(f"Found these CSV files: {files}")
             time.sleep(wait_interval)
             waited += wait_interval
     
     # If we get here, we didn't find the output file
     print(f"No output file found at {expected_output_file} after waiting {max_wait_time} seconds")
+    # Final attempt to find any CSV output
+    csv_files = [f for f in os.listdir(wrapper_dir) if f.endswith('.csv')]
+    if csv_files:
+        print(f"Found these CSV files in the directory: {csv_files}")
+        if len(csv_files) == 1 and csv_files[0] != os.path.basename(expected_output_file):
+            # If there's exactly one CSV and it's not our expected file, use it
+            alt_output = os.path.join(wrapper_dir, csv_files[0])
+            print(f"Using alternative output file: {alt_output}")
+            return alt_output
     return None
 
 def format_results(prediction_file, fasta_path, output_path):
