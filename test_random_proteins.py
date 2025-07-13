@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Test script to verify PLM_Sol functionality with random proteins.
-This script exactly follows the pattern of the working test_lacZ.py and test_plmsol_functionality.py.
+Test script to verify PLM_Sol functionality with random proteins combined sequences.
 """
 import os
 import sys
@@ -9,7 +8,6 @@ import yaml
 from pathlib import Path
 import argparse
 import subprocess
-import time
 
 def create_embedding_config(fasta_path, output_dir):
     """Create a bio-embeddings configuration file for random proteins."""
@@ -19,7 +17,7 @@ def create_embedding_config(fasta_path, output_dir):
     fasta_basename = os.path.basename(fasta_path).split('.')[0]
     output_prefix = os.path.join(output_dir, fasta_basename + "_emb")
     
-    # Match exactly the structure of the working lacZ_embedding_config.yml
+    # Match exactly the structure of the working test_plmsol_functionality.py embedding config
     config = {
         "global": {
             "sequences_file": fasta_path,
