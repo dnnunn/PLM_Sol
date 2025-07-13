@@ -1,5 +1,0 @@
-global:
-  # Path to input sequences FASTA
-  sequences_file: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/plmsol_test/random_proteins_combined.fasta
-  # Output directory prefix
-  prefix: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/plmsol_test/random_emb
