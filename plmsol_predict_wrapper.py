@@ -104,7 +104,11 @@ def run_embeddings(config_path):
         'python', embed_script,
         '--config', config_path
     ]
-    subprocess.run(cmd, check=True)
+    # Capture output for debugging
+    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    print(f"Embedding stdout: {result.stdout}")
+    if result.stderr:
+        print(f"Embedding stderr: {result.stderr}")
 
 def run_inference(config_path):
     """Run the PLM_Sol inference script
@@ -270,129 +274,81 @@ def main():
     else:
         # Use standard temporary directory that will be cleaned up
         with tempfile.TemporaryDirectory() as tmpdir:
-            process_prediction(args, tmpdir)
-
-
-def process_prediction(args, tmpdir):
-        print(f"Using temporary directory: {tmpdir}")
-        
-        # Create necessary subdirectories
+    """Run PLM_Sol prediction pipeline on input sequences"""
+    print(f"Using temporary directory: {tmpdir}")
+    
+    try:
+        # Step 1: Setup embedding generation
         t5_embeddings_dir = os.path.join(tmpdir, 't5_embeddings')
         os.makedirs(t5_embeddings_dir, exist_ok=True)
         
-        # Step 1: Prepare embedding config
+        # Create config for embedding
         embed_config = EMBED_CONFIG_TEMPLATE.copy()
         embed_config['global']['sequences_file'] = os.path.abspath(args.fasta)
-        embed_config['global']['prefix'] = tmpdir
+        embed_config['global']['prefix'] = os.path.abspath(t5_embeddings_dir)
+        
         embed_config_path = os.path.join(tmpdir, 'embed_config.yml')
         with open(embed_config_path, 'w') as f:
-            yaml.safe_dump(embed_config, f)
-        
+            yaml.dump(embed_config, f)
+            
         print(f"Generated embedding config at {embed_config_path}")
-
-        # Step 2: Run embedding
+        
+        # Step 2: Run embedding generation
         print("Running embedding generation...")
-        try:
-            run_embeddings(embed_config_path)
-        except Exception as e:
-            print(f"Error during embedding generation: {e}")
-            raise
-            
-        embeddings_file = os.path.join(tmpdir, 't5_embeddings', 'embeddings_file.h5')
-        remapped_fasta = os.path.join(tmpdir, 'remapped_sequences_file.fasta')
+        run_embeddings(embed_config_path)
         
-        # Check if embeddings file exists
-        if not os.path.exists(embeddings_file):
-            print(f"Warning: Embeddings file not found at {embeddings_file}")
-            print("Looking for embeddings in alternate locations...")
-            # Try looking in other potential locations
-            alt_locations = [os.path.join(tmpdir, 'embeddings_file.h5')]
-            found = False
-            for loc in alt_locations:
-                if os.path.exists(loc):
-                    embeddings_file = loc
-                    found = True
-                    print(f"Found embeddings at {loc}")
-                    break
-            if not found:
-                print("Could not find embeddings file")
-                raise FileNotFoundError("Embeddings file not found")
+        # Define embeddings file path
+        embeddings_file = os.path.join(t5_embeddings_dir, 'embeddings_file.h5')
+        print(f"Columns in prediction file: {pred_df.columns.tolist()}")
+        seqs = {rec.id: str(rec.seq) for rec in SeqIO.parse(args.fasta, "fasta")}
+        pred_df['Predictor'] = 'PLM_Sol'
         
-        fasta_to_remapped(args.fasta, remapped_fasta)
-
-        # Step 3: Prepare inference config
-        output_file = os.path.join(tmpdir, 'plmsol_predictions.csv')
-        infer_config_path = create_inference_config(t5_embeddings_dir, output_file, remapped_fasta, tmpdir)
+        # Map column names from protTrans_prediction_result.csv to expected names
+        if 'protein_ID' in pred_df.columns:
+            # Rename to standard column names
+            pred_df.rename(columns={'protein_ID': 'Accession'}, inplace=True)
+            
+        # If sequence is already in the prediction file, use it directly
+        if 'sequence' in pred_df.columns:
+            pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
+        elif 'Accession' in pred_df.columns:
+            # Otherwise map from FASTA
+            pred_df['Sequence'] = pred_df['Accession'].map(seqs)
+        else:
+            raise ValueError(f"Could not find required columns. Available columns: {pred_df.columns.tolist()}")
         
-        print(f"Generated inference config at {infer_config_path}")
-
-        # Step 4: Run inference
-        print("Running inference...")
-        try:
-            actual_output_file = run_inference(infer_config_path)
-        except Exception as e:
-            print(f"Error during inference: {e}")
-            create_fallback_output(args.fasta, args.out)
-            return
-                
-        if actual_output_file is None:
-            print("Warning: Output file not found at any expected location")
-            print("Creating fallback output with neutral predictions")
-            create_fallback_output(args.fasta, args.out)
-            return
-            
-        try:
-            pred_df = pd.read_csv(actual_output_file)
-            print(f"Columns in prediction file: {pred_df.columns.tolist()}")
-            seqs = {rec.id: str(rec.seq) for rec in SeqIO.parse(args.fasta, "fasta")}
-            pred_df['Predictor'] = 'PLM_Sol'
-            
-            # Map column names from protTrans_prediction_result.csv to expected names
-            if 'protein_ID' in pred_df.columns:
-                # Rename to standard column names
-                pred_df.rename(columns={'protein_ID': 'Accession'}, inplace=True)
-                
-            # If sequence is already in the prediction file, use it directly
-            if 'sequence' in pred_df.columns:
-                pred_df.rename(columns={'sequence': 'Sequence'}, inplace=True)
-            elif 'Accession' in pred_df.columns:
-                # Otherwise map from FASTA
-                pred_df['Sequence'] = pred_df['Accession'].map(seqs)
+        # Assume prediction column is 'SolubilityScore' or similar
+        if 'SolubilityScore' not in pred_df.columns:
+            # Try to infer from available columns
+            if 'predict_result' in pred_df.columns:
+                pred_df['SolubilityScore'] = pred_df['predict_result']
+            elif 'probability' in pred_df.columns:
+                pred_df['SolubilityScore'] = pred_df['probability']
+            elif 'pred_label' in pred_df.columns:
+                pred_df['SolubilityScore'] = pred_df['pred_label'].map(lambda x: 1 if x == 1 or str(x).lower() == 'soluble' else 0)
             else:
-                raise ValueError(f"Could not find required columns. Available columns: {pred_df.columns.tolist()}")
-            
-            # Assume prediction column is 'SolubilityScore' or similar
-            if 'SolubilityScore' not in pred_df.columns:
-                # Try to infer from available columns
-                if 'predict_result' in pred_df.columns:
-                    pred_df['SolubilityScore'] = pred_df['predict_result']
-                elif 'probability' in pred_df.columns:
-                    pred_df['SolubilityScore'] = pred_df['probability']
-                elif 'pred_label' in pred_df.columns:
-                    pred_df['SolubilityScore'] = pred_df['pred_label'].map(lambda x: 1 if x == 1 or str(x).lower() == 'soluble' else 0)
-                else:
-                    raise ValueError(f"Could not find expected prediction columns. Available columns: {pred_df.columns.tolist()}")
-                    
-            pred_df['Probability_Soluble'] = pred_df['SolubilityScore']
-            pred_df['Probability_Insoluble'] = 1 - pred_df['SolubilityScore']
-            
-            # Standardize columns
-            if 'name' in pred_df.columns:
-                pred_df.rename(columns={'name': 'Accession'}, inplace=True)
-            
-            # Make sure all required columns exist
-            required_columns = ['Accession', 'Sequence', 'Predictor', 'SolubilityScore']
-            for col in required_columns:
-                if col not in pred_df.columns:
-                    raise ValueError(f"Required column '{col}' is missing after processing. Available columns: {pred_df.columns.tolist()}")
+                raise ValueError(f"Could not find expected prediction columns. Available columns: {pred_df.columns.tolist()}")
                 
-            out_df = pred_df[['Accession', 'Sequence', 'Predictor', 'SolubilityScore', 'Probability_Soluble', 'Probability_Insoluble']]
-            os.makedirs(os.path.dirname(args.out), exist_ok=True)
-            out_df.to_csv(args.out, index=False)
-            print(f"Results written to {args.out}")
-        except Exception as e:
-            print(f"Error processing results: {e}")
-            raise
+        pred_df['Probability_Soluble'] = pred_df['SolubilityScore']
+        pred_df['Probability_Insoluble'] = 1 - pred_df['SolubilityScore']
+        
+        # Standardize columns
+        if 'name' in pred_df.columns:
+            pred_df.rename(columns={'name': 'Accession'}, inplace=True)
+        
+        # Make sure all required columns exist
+        required_columns = ['Accession', 'Sequence', 'Predictor', 'SolubilityScore']
+        for col in required_columns:
+            if col not in pred_df.columns:
+                raise ValueError(f"Required column '{col}' is missing after processing. Available columns: {pred_df.columns.tolist()}")
+            
+        out_df = pred_df[['Accession', 'Sequence', 'Predictor', 'SolubilityScore', 'Probability_Soluble', 'Probability_Insoluble']]
+        os.makedirs(os.path.dirname(args.out), exist_ok=True)
+        out_df.to_csv(args.out, index=False)
+        print(f"Results written to {args.out}")
+    except Exception as e:
+        print(f"Error processing results: {e}")
+        raise
 
 def create_fallback_output(fasta_path, output_path):
     """Create a fallback output CSV if prediction fails"""
