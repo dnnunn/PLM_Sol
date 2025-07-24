@@ -136,9 +136,9 @@ class PLMSolFineTuner:
             'exp_name': experiment_name,
             
             # Paths to our fine-tuning embeddings
-            'train_embeddings': str(embedding_base / 'train_emb' / 'embeddings_file.h5'),
-            'val_embeddings': str(embedding_base / 'val_emb' / 'embeddings_file.h5'),
-            'test_embeddings': str(embedding_base / 'test_emb' / 'embeddings_file.h5'),
+            'train_embeddings': str(embedding_base / 'train_emb' / 't5_embeddings' / 'embeddings_file.h5'),
+            'val_embeddings': str(embedding_base / 'val_emb' / 't5_embeddings' / 'embeddings_file.h5'),
+            'test_embeddings': str(embedding_base / 'test_emb' / 't5_embeddings' / 'embeddings_file.h5'),
             'train_remapping': str(embedding_base / 'train_emb' / 'remapped_sequences_file.fasta'),
             'val_remapping': str(embedding_base / 'val_emb' / 'remapped_sequences_file.fasta'),
             'test_remapping': str(embedding_base / 'test_emb' / 'remapped_sequences_file.fasta'),
