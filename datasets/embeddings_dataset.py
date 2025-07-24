@@ -40,10 +40,10 @@ class EmbeddingsDataset(Dataset):
                 solubility = record.description.split(' ')[2].split('-')[-1]
                 id = str(record.id)
             elif key_format == 'fasta_descriptor':
-                # This is the definitive fix. The previous logic was silently failing to find the correct embedding key.
-                # The 'id' must be the full description string to match the key in the embeddings file.
+                # Final fix: Use record.id for the key lookup to match the H5 file,
+                # but parse solubility from the full description.
                 solubility = record.description.split(' ')[2].split('-')[-1]
-                id = str(record.description)
+                id = str(record.id)
             elif key_format == 'fasta_descriptor_old':
                 solubility = record.description.split(' ')[2].split('-')[-1] # Must be 3rd field for our format
                 id = str(record.description)
