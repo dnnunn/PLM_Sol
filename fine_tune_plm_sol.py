@@ -101,11 +101,11 @@ class PLMSolFineTuner:
                 'sequences_file': str(fasta_file)
             },
             'embedder': {
-                'protocol': 't5',
+                'type': 't5',
                 'model_directory': 'Rostlab/prot_t5_xl_half_uniref50-enc'
             },
             'reducer': {
-                'protocol': 'mean'
+                'type': 'mean'
             }
         }
         
