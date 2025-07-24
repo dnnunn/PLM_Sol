@@ -177,8 +177,9 @@ class PLMSolFineTuner:
         try:
             cmd = [
                 "conda", "run", "-n", "PLM_Sol",
-                "python", "train.py",
-                "--config", str(config_file)
+                "python", "train.py", 
+                "--config", str(config_file),
+                "--key_format", "fasta_descriptor" # Explicitly set key_format to override train.py default
             ]
             
             print(f"🏃 Running fine-tuning: {' '.join(cmd)}")
