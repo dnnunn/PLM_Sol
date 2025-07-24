@@ -154,8 +154,6 @@ class PLMSolFineTuner:
                 'dropout': 0.25
             },
             
-            # Use pre-trained checkpoint for fine-tuning
-            'checkpoint': './checkpoints/FFN_checkpoint.pt',
             'eval_on_test': True
         }
         
