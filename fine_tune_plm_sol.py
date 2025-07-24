@@ -54,7 +54,7 @@ class PLMSolFineTuner:
                 continue
             
             split_output_dir = embedding_output_dir / f"{split}_emb"
-            embeddings_file = split_output_dir / "embeddings_file.h5"
+            embeddings_file = split_output_dir / "t5_embeddings" / "embeddings_file.h5"
             remapped_file = split_output_dir / "remapped_sequences_file.fasta"
             
             # Skip if embeddings already exist and not forcing regeneration

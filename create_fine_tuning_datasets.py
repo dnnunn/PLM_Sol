@@ -184,13 +184,13 @@ def save_datasets(splits, output_dir):
         for split_name, split_data in dataset_splits.items():
             X, y = split_data['X'], split_data['y']
             
-            # Save as FASTA for PLM_Sol training
+            # Save as FASTA for PLM_Sol training with correct header format
             fasta_file = dataset_dir / f"{split_name}.fasta"
             with open(fasta_file, 'w') as f:
                 for idx, row in X.iterrows():
-                    # Include solubility label in header for training
+                    # PLM_Sol expects: >id description field1 field2-solubility_label
                     label = int(y.loc[idx])
-                    f.write(f">{row['sequence_id']}_label_{label}\n")
+                    f.write(f">{row['sequence_id']} protein sequence soluble-{label}\n")
                     f.write(f"{row['sequence']}\n")
             
             # Save as CSV for analysis
