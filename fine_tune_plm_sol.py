@@ -315,36 +315,26 @@ class PLMSolFineTuner:
 
 def main():
     parser = argparse.ArgumentParser(description="Fine-tune PLM_Sol on specialized datasets")
-    parser.add_argument('--datasets', nargs='+', default=None,
-                       help='Dataset names to process (default: all)')
-    parser.add_argument('--force-embeddings', action='store_true',
-                       help='Force regeneration of embeddings')
-    parser.add_argument('--embeddings-only', action='store_true',
-                       help='Only generate embeddings, skip training')
-    
-    args = parser.parse_args()
-    
+    parser.add_argument('--datasets', nargs='+', required=True,
+                        help='List of dataset names to fine-tune on')
+    parser.add_argument('--force-regenerate', action='store_true',
+                        help='Force regeneration of embeddings even if they exist')
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = main()
     # Initialize fine-tuner
     fine_tuner = PLMSolFineTuner()
     
-    if args.embeddings_only:
-        # Only generate embeddings
-        dataset_names = args.datasets or [d.name for d in fine_tuner.datasets_dir.iterdir() if d.is_dir()]
-        for dataset_name in dataset_names:
-            fine_tuner.generate_embeddings(dataset_name, args.force_embeddings)
-    else:
-        # Run complete pipeline
-        results = fine_tuner.run_complete_fine_tuning_pipeline(
-            args.datasets, 
-            args.force_embeddings
-        )
-        
-        print(f"\n🎉 Fine-tuning pipeline completed!")
-        print(f"📊 Processed {len(results)} datasets")
-        
-        # Count successes
-        completed = sum(1 for r in results.values() if r.get('status') == 'completed')
-        print(f"✅ Successful: {completed}/{len(results)}")
-
-if __name__ == "__main__":
-    main()
+    # Run complete pipeline with force regenerate flag
+    results = fine_tuner.run_complete_fine_tuning_pipeline(
+        args.datasets, 
+        args.force_regenerate
+    )
+    
+    print(f"\n🎉 Fine-tuning pipeline completed!")
+    print(f"📊 Processed {len(results)} datasets")
+    
+    # Count successes
+    completed = sum(1 for r in results.values() if r.get('status') == 'completed')
+    print(f"✅ Successful: {completed}/{len(results)}")
