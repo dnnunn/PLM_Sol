@@ -141,7 +141,7 @@ class Solver():
             # load checkpoint of best model to do evaluation
             checkpoint = torch.load(os.path.join('outputs/{exp}/models/model-{epoch}.t7'.format(exp=args.exp_name,epoch=str(best_epoch))), map_location=self.device)
             self.model.load_state_dict(checkpoint)
-            self.evaluation(eval_data, filename='val_data_after_training')
+            self.evaluation(eval_data)
 
             
     def evaluation(self, eval_dataset: Dataset):
