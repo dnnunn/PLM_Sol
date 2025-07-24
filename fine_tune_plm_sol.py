@@ -125,12 +125,12 @@ class PLMSolFineTuner:
         
         config = {
             'experiment_name': f'PLM_Sol_FineTuning_{dataset_name}',
-            'num_epochs': 50,  # Reduced for fine-tuning
-            'batch_size': 64,  # Smaller batch size for fine-tuning
+            'num_epochs': 50,  
+            'batch_size': 64,  
             'log_iterations': 10,
-            'patience': 10,  # Early stopping patience
+            'patience': 10,  
             'optimizer_parameters': {
-                'lr': 1.0e-4  # Lower learning rate for fine-tuning
+                'lr': 1.0e-4  
             },
             'target': 'sol',
             'unknown_solubility': False,
@@ -154,6 +154,7 @@ class PLMSolFineTuner:
                 'dropout': 0.25
             },
             
+            'checkpoint': None, # Ensure we are not loading a checkpoint
             'eval_on_test': True
         }
         
