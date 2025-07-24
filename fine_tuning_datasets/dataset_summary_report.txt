@@ -1,0 +1,69 @@
+PLM_Sol Fine-Tuning Dataset Creation Report
+==================================================
+
+DATASET OVERVIEW:
+Original sequences: 16646
+Length filtered (200-400 AA): 6012
+Retention rate: 36.1%
+
+BIOPHYSICAL FEATURE STATISTICS:
+Proline Content Calc:
+  Mean ± Std: 5.61% ± 3.01%
+  2σ threshold: 11.64%
+
+Rk Content:
+  Mean ± Std: 11.44% ± 4.12%
+  2σ threshold: 19.68%
+
+Wyfl Content:
+  Mean ± Std: 16.34% ± 4.43%
+  2σ threshold: 25.21%
+
+ENRICHED DATASETS:
+High Proline:
+  Total sequences: 206
+  Soluble: 81 (39.3%)
+  Insoluble: 125 (60.7%)
+
+High Rk:
+  Total sequences: 243
+  Soluble: 110 (45.3%)
+  Insoluble: 133 (54.7%)
+
+High Wyfl:
+  Total sequences: 157
+  Soluble: 55 (35.0%)
+  Insoluble: 102 (65.0%)
+
+Combined High:
+  Total sequences: 601
+  Soluble: 244 (40.6%)
+  Insoluble: 357 (59.4%)
+
+TRAIN/TEST/VALIDATION SPLITS:
+High Proline:
+  Train: 144 sequences (57 soluble, 87 insoluble)
+  Val: 31 sequences (12 soluble, 19 insoluble)
+  Test: 31 sequences (12 soluble, 19 insoluble)
+
+High Rk:
+  Train: 169 sequences (76 soluble, 93 insoluble)
+  Val: 37 sequences (17 soluble, 20 insoluble)
+  Test: 37 sequences (17 soluble, 20 insoluble)
+
+High Wyfl:
+  Train: 109 sequences (39 soluble, 70 insoluble)
+  Val: 24 sequences (8 soluble, 16 insoluble)
+  Test: 24 sequences (8 soluble, 16 insoluble)
+
+Combined High:
+  Train: 420 sequences (170 soluble, 250 insoluble)
+  Val: 90 sequences (37 soluble, 53 insoluble)
+  Test: 91 sequences (37 soluble, 54 insoluble)
+
+USAGE RECOMMENDATIONS:
+1. Start with 'combined_high' dataset for general fine-tuning
+2. Use individual datasets (high_proline, high_rk, high_wyfl) for specialized fine-tuning
+3. All datasets are filtered to 200-400 AA range matching PeptideFrontEnd targets
+4. FASTA files include solubility labels in headers for training
+5. CSV files provide detailed analysis and feature information
