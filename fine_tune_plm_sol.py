@@ -102,6 +102,7 @@ class PLMSolFineTuner:
             },
             't5_embeddings': {
                 'type': 'embed',
+                'key_format': 'fasta_descriptor', 
                 'protocol': 'prottrans_t5_xl_u50',
                 'half_precision_model': True,
                 'half_precision': True
@@ -133,6 +134,7 @@ class PLMSolFineTuner:
             },
             'target': 'sol',
             'unknown_solubility': False,
+            'key_format': 'fasta_descriptor', # Use correct parser for '>id description soluble-label' format
             'exp_name': experiment_name,
             
             # Paths to our fine-tuning embeddings
