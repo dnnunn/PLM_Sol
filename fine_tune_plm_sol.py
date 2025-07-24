@@ -92,20 +92,24 @@ class PLMSolFineTuner:
         print(f"🎉 Embedding generation completed for {dataset_name}")
 
     def create_embedding_config(self, fasta_file, output_dir):
-        """Create bio_embeddings config file for T5 embeddings"""
+        """Create bio_embeddings config file for T5 embeddings using PLM_Sol format"""
         output_dir.mkdir(parents=True, exist_ok=True)
         
         config = {
             'global': {
-                'prefix': str(output_dir),
-                'sequences_file': str(fasta_file)
+                'sequences_file': str(fasta_file),
+                'prefix': str(output_dir)
             },
-            'embedder': {
-                'protocol': 't5',
-                'model_directory': 'Rostlab/prot_t5_xl_half_uniref50-enc'
+            't5_embeddings': {
+                'type': 'embed',
+                'protocol': 'prottrans_t5_xl_u50',
+                'half_precision_model': True,
+                'half_precision': True
             },
-            'reducer': {
-                'protocol': 'mean'
+            'annotations_from_t5': {
+                'type': 'extract',
+                'protocol': 'la_prott5',
+                'depends_on': 't5_embeddings'
             }
         }
         
