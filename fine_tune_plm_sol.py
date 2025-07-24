@@ -19,7 +19,7 @@ import shutil
 from datetime import datetime
 
 class PLMSolFineTuner:
-    def __init__(self, base_dir="/Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol"):
+    def __init__(self, base_dir="/home/david_nunn/PLM_Sol"):
         self.base_dir = Path(base_dir)
         self.datasets_dir = self.base_dir / "fine_tuning_datasets"
         self.embeddings_dir = self.base_dir / "fine_tuning_embeddings"
