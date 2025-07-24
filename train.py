@@ -49,7 +49,7 @@ def train(args):
         test_set = EmbeddingsDataset(args.test_embeddings, args.test_remapping, args.unknown_solubility,
                                                  key_format=args.key_format, embedding_mode=args.embedding_mode,
                                                  transform=transform)
-        solver.evaluation(test_set, filename='test_set_after_train')
+        solver.evaluation(test_set)
 
 
 def parse_arguments():
