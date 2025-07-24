@@ -63,12 +63,24 @@ def parse_arguments():
     arg_dict = args.__dict__
     for key, value in data.items():
         arg_dict[key] = value
-    
-    # The config might not have certain settings, so we provide defaults.
-    if 'device' not in arg_dict:
-        args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    if 'seed' not in arg_dict:
-        args.seed = 123 # Default seed
+
+    # --- Set Defaults for Missing Config Values ---
+    defaults = {
+        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
+        'seed': 123,
+        'max_length': 6000,
+        'key_format': 'fasta_descriptor',
+        'embedding_mode': 'lm',
+        'unknown_solubility': True,
+        'batch_size': 128,
+        'exp_name': 'baseline_eval',
+        'optimizer_parameters': {'lr': 1e-4},
+        'loss_function': 'LocCrossEntropy'
+    }
+
+    for key, value in defaults.items():
+        if key not in arg_dict:
+            arg_dict[key] = value
 
     return args
 
