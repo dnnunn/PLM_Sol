@@ -64,9 +64,11 @@ def parse_arguments():
     for key, value in data.items():
         arg_dict[key] = value
     
-    # The config might not have a device setting, so we add it.
+    # The config might not have certain settings, so we provide defaults.
     if 'device' not in arg_dict:
         args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    if 'seed' not in arg_dict:
+        args.seed = 123 # Default seed
 
     return args
 
