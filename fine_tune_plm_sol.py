@@ -105,11 +105,6 @@ class PLMSolFineTuner:
                 'protocol': 'prottrans_t5_xl_u50',
                 'half_precision_model': True,
                 'half_precision': True
-            },
-            'annotations_from_t5': {
-                'type': 'extract',
-                'protocol': 'la_prott5',
-                'depends_on': 't5_embeddings'
             }
         }
         
