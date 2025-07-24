@@ -43,7 +43,7 @@ class EmbeddingsDataset(Dataset):
                 solubility = record.description.split(' ')[2].split('-')[-1]
                 id = str(record.description.split(' ')[0]).replace('.','_').replace('/','_')
             elif key_format == 'fasta_descriptor_old':
-                solubility = record.description.split(' ')[1].split('-')[-1]
+                solubility = record.description.split(' ')[2].split('-')[-1] # Must be 3rd field for our format
                 id = str(record.description)
             else:
                 raise Exception('Unknown key_format: ', key_format)
