@@ -14,7 +14,7 @@ def create_expanded_datasets():
     """Create datasets with 1.5σ and 1σ thresholds for larger training sets"""
     
     # Load the filtered data (200-400 AA)
-    input_file = "/Users/davidnunn/Desktop/Benchmark_Results/Annotated_Sequences_All_Filtered_Predictors.csv"
+    input_file = "/home/david_nunn/Benchmark_Results/Annotated_Sequences_All_Filtered_Predictors.csv"
     print(f"Loading data from {input_file}")
     
     df = pd.read_csv(input_file)
@@ -122,7 +122,7 @@ def create_expanded_datasets():
     
     return results
 
-def save_expanded_datasets(results, output_dir="/Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fine_tuning_datasets"):
+def save_expanded_datasets(results, output_dir="/home/david_nunn/PLM_Sol/fine_tuning_datasets"):
     """Save the expanded datasets"""
     output_path = Path(output_dir)
     
