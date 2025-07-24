@@ -104,11 +104,8 @@ def parse_arguments():
         data = yaml.load(args.config, Loader=yaml.FullLoader)
         arg_dict = args.__dict__
         for key, value in data.items():
-            if isinstance(value, list):
-                for v in value:
-                    arg_dict[key].append(v)
-            else:
-                arg_dict[key] = value
+            # This is the key fix: ensure config values are set correctly.
+            arg_dict[key] = value
     return args
 
 
