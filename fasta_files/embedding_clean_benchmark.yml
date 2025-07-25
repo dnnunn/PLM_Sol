@@ -1,0 +1,9 @@
+global:
+  sequences_file: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fasta_files/clean_sequences.fasta
+  prefix: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fasta_files/clean_sequences_emb
+
+t5_embeddings:
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: True
+  half_precision: True
