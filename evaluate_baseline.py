@@ -57,12 +57,18 @@ def parse_arguments():
     p.add_argument('--checkpoint', type=str, required=True, help='Path to the pre-trained model checkpoint file.')
 
     args, unknown = p.parse_known_args()
+    
+    # Save the command-line checkpoint before it gets overwritten by the config
+    cmd_checkpoint = args.checkpoint
 
     # Load args from config file
     data = yaml.load(args.config, Loader=yaml.FullLoader)
     arg_dict = args.__dict__
     for key, value in data.items():
         arg_dict[key] = value
+
+    # Restore the command-line checkpoint
+    args.checkpoint = cmd_checkpoint
 
     # --- Set Defaults for Missing Config Values ---
     defaults = {
