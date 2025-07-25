@@ -1,0 +1,5 @@
+exp_name: eval_on_benchmark_16k
+model: biLSTM_TextCNN
+key_format: fasta_descriptor
+test_embeddings: fine_tuning_embeddings/benchmark_16k/benchmark_16k/t5_embeddings/embeddings_file.h5
+test_remapping: fine_tuning_embeddings/benchmark_16k/benchmark_16k/remapped_sequences_file.fasta
