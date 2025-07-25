@@ -36,6 +36,87 @@ class Solver():
             train_loader: For training
             val_loader: For validation during training
             eval_data: For evaluation and estimating stderr after training
+        Returns:
+        """
+        args = self.args
+        io = IOStream('outputs/' + self.args.exp_name + '/run.log')
+        lr_scheduler = ReduceLROnPlateau(self.optim, mode='min', factor=0.1, patience=1, verbose=True)
+        best_test_acc = 0
+        patience_counter = 0
+        best_epoch = 0
+        for epoch in range(self.start_epoch, args.num_epochs):
+            self.model.train()
+            train_pred = []
+            train_true = []
+            train_loss = 0.0
+            count = 0.0
+            for i, batch in enumerate(train_loader):
+                embedding, sol, metadata = batch
+                embedding, solubility, sol_known = embedding.to(self.device), sol.to(self.device), metadata['solubility_known'].to(self.device)
+                sequence_lengths = metadata['length'][:, None].to(self.device)
+                frequencies = metadata['frequencies'].to(self.device)
+                mask = torch.arange(metadata['length'].max())[None, :] < metadata['length'][:,None]
+                outputs = self.model(embedding, mask=mask.to(self.device), sequence_lengths=sequence_lengths, frequencies=frequencies)
+                loss = F.binary_cross_entropy(outputs.squeeze(1), solubility.float())
+                loss.backward()
+                self.optim.step()
+                self.optim.zero_grad()
+                count += self.args.batch_size
+                train_loss += loss.item() * self.args.batch_size
+                train_true.append(solubility.cpu().numpy())
+                train_pred.append((outputs.detach().cpu().numpy() >= 0.5))
+            train_true = np.concatenate(train_true)
+            train_pred = np.concatenate(train_pred)
+            outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f' % (epoch, train_loss*1.0/count, metrics.accuracy_score(train_true, train_pred), metrics.balanced_accuracy_score(train_true, train_pred))
+            io.cprint(outstr)
+            with torch.no_grad():
+                self.model.eval()
+                test_pred = []
+                test_true = []
+                test_loss = 0.0
+                count = 0.0
+                for i, batch in enumerate(val_loader):
+                    embedding, sol, metadata = batch
+                    embedding, solubility, sol_known = embedding.to(self.device), sol.to(self.device), metadata['solubility_known'].to(self.device)
+                    sequence_lengths = metadata['length'][:, None].to(self.device)
+                    frequencies = metadata['frequencies'].to(self.device)
+                    mask = torch.arange(metadata['length'].max())[None, :] < metadata['length'][:, None]
+                    outputs = self.model(embedding, mask=mask.to(self.device), sequence_lengths=sequence_lengths, frequencies=frequencies)
+                    loss = F.binary_cross_entropy(outputs.squeeze(1), solubility.float())
+                    count += self.args.batch_size
+                    test_loss += loss.item() * self.args.batch_size
+                    test_true.append(solubility.cpu().numpy())
+                    test_pred.append((outputs.detach().cpu().numpy() >= 0.5))
+                test_true = np.concatenate(test_true)
+                test_pred = np.concatenate(test_pred)
+                test_acc = metrics.accuracy_score(test_true, test_pred)
+                avg_per_class_acc = metrics.balanced_accuracy_score(test_true, test_pred)
+                outstr = 'Test %d, loss: %.6f, test acc: %.6f, test avg acc: %.6f' % (epoch, test_loss*1.0/count, test_acc, avg_per_class_acc)
+                io.cprint(outstr)
+                if test_acc > best_test_acc:
+                    best_test_acc = test_acc
+                    best_epoch = epoch
+                    torch.save(self.model.state_dict(), 'outputs/{exp}/models/model-{epoch}.t7'.format(exp=args.exp_name,epoch=str(epoch)))
+                    io.cprint("save weights!!!")
+                    self.save_checkpoint(epoch + 1)
+                    patience_counter = 0
+                else:
+                    patience_counter += 1
+                lr_scheduler.step(test_loss)
+                if patience_counter >= self.args.patience:
+                    io.cprint(f'Early stopping after {self.args.patience} epochs with no improvement.')
+                    break
+        if eval_data:
+            checkpoint = os.path.join('outputs/{exp}/models/model-{epoch}.t7'.format(exp=args.exp_name,epoch=str(best_epoch)))
+            self.model.load_state_dict(torch.load(checkpoint))
+            self.evaluation(eval_data)
+
+        """
+        Train and simultaneously evaluate on the val_loader and then estimate the stderr on eval_data if it is provided
+        Args:
+            train_loader: For training
+            val_loader: For validation during training
+            eval_data: For evaluation and estimating stderr after training
 
         Returns:
 
