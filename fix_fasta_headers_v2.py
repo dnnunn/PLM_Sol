@@ -48,9 +48,18 @@ def fix_fasta_headers(fasta_file_path):
                     fixed_lines.append(new_header)
                     print(f"  Fixed: {line.strip()} -> {new_header.strip()}")
                 else:
-                    # Keep original if pattern doesn't match
-                    fixed_lines.append(line)
-                    print(f"  Kept: {line.strip()}")
+                    # NEW: Handle >seq_17_solubility_1 format
+                    sol_match = re.match(r'>(.+)_solubility_(\d+)', line.strip())
+                    if sol_match:
+                        seq_id = sol_match.group(1)
+                        label = sol_match.group(2)
+                        new_header = f">{seq_id} description soluble-{label}\n"
+                        fixed_lines.append(new_header)
+                        print(f"  Fixed: {line.strip()} -> {new_header.strip()}")
+                    else:
+                        # Keep original if pattern doesn't match
+                        fixed_lines.append(line)
+                        print(f"  Kept: {line.strip()}")
         else:
             # Keep sequence lines unchanged
             fixed_lines.append(line)
