@@ -53,3 +53,77 @@ bio_embeddings <your_config>.yml --overwrite
 ---
 
 **Always use this template for new datasets to avoid compatibility errors.**
+
+
+# FULL WORKFLOW: Embedding Generation and Evaluation for New Splits
+
+This section documents the complete, repeatable process for generating T5 embeddings and evaluating PLM_Sol models on any new dataset split (e.g., high_proline, high_rk, high_wyfl) for any subset (train/val/test).
+
+## 1. Directory Preparation
+Before running embedding generation, create the output directory for your split and subset:
+
+```bash
+mkdir -p fine_tuning_embeddings/<split>/<subset>
+```
+For example:
+```bash
+mkdir -p fine_tuning_embeddings/high_rk/train_emb
+```
+
+## 2. YAML Config Creation
+Copy the template below and create a new YAML config for each split/subset. Place these in `fine_tuning_outputs/`.
+
+Example for `high_rk` training set:
+```yaml
+# fine_tuning_outputs/high_rk_train_embed.yml
+global:
+  sequences_file: fine_tuning_datasets/high_rk/train.fasta
+  prefix: fine_tuning_embeddings/high_rk/train_emb/train_emb
+
+t5_embeddings:
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: True
+  half_precision: True
+```
+
+## 3. Embedding Generation
+Run for each split/subset:
+```bash
+bio_embeddings fine_tuning_outputs/<split>_<subset>_embed.yml --overwrite
+```
+Example:
+```bash
+bio_embeddings fine_tuning_outputs/high_rk_train_embed.yml --overwrite
+```
+
+## 4. Evaluation YAML Config
+Create an evaluation YAML config for each split/subset:
+
+Example for `high_rk` training set:
+```yaml
+# fine_tuning_outputs/eval_combined_on_high_rk_train.yml
+exp_name: eval_combined_on_high_rk_train
+model: biLSTM_TextCNN
+key_format: fasta_descriptor
+train_embeddings: fine_tuning_embeddings/high_rk/train_emb/train_emb/t5_embeddings/embeddings_file.h5
+train_remapping: fine_tuning_embeddings/high_rk/train_emb/train_emb/remapped_sequences_file.fasta
+```
+
+## 5. Model Evaluation Command
+Run the following, adjusting for baseline/fine-tuned model and split/subset:
+```bash
+python evaluate_baseline.py --config fine_tuning_outputs/eval_combined_on_<split>_<subset>.yml \
+  --checkpoint <path_to_model_checkpoint> \
+  --eval_embeddings fine_tuning_embeddings/<split>/<subset>/<subset>/t5_embeddings/embeddings_file.h5 \
+  --eval_remapping fine_tuning_embeddings/<split>/<subset>/<subset>/remapped_sequences_file.fasta
+```
+
+## 6. Troubleshooting
+- If you see `FileNotFoundError`, check both the directory and file existence for embeddings and remapping files.
+- Always generate embeddings for each new split/subset before attempting evaluation.
+- Ensure all paths in YAML configs and CLI commands match your directory structure and naming conventions.
+
+---
+
+**This workflow is validated and should be followed for all future PLM_Sol embedding and evaluation tasks. If you encounter any issues, update this section with new solutions.**
