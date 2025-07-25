@@ -1,6 +1,6 @@
 global:
-  sequences_file: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fasta_files/clean_sequences.fasta
-  prefix: /Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fasta_files/clean_sequences_emb
+  sequences_file: ~/PLM_Sol/fasta_files/clean_sequences.fasta
+  prefix: ~/PLM_Sol/fasta_files/clean_sequences_emb
 
 t5_embeddings:
   type: embed
