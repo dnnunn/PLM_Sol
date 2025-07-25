@@ -311,7 +311,10 @@ class Solver():
                     embedding, metadata = batch  # print('sol',sol)
                 
                     embedding = embedding.to(self.device)
-                    sequence_lengths = metadata['length'][:, None].to(self.device) 
+                    sequence_lengths = metadata['length'].to(self.device)
+                    if sequence_lengths.dim() == 1:
+                        sequence_lengths = sequence_lengths.unsqueeze(1)
+
                     frequencies = metadata['frequencies'].to(self.device)  
                     
                     mask = torch.arange(metadata['length'].max())[None, :] < metadata['length'][:,None]  
