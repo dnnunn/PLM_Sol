@@ -53,24 +53,29 @@ def evaluate(args):
 def parse_arguments():
     p = argparse.ArgumentParser(description="Baseline Model Evaluation Script")
     # --- Essential Arguments ---
-    p.add_argument('--config', type=argparse.FileType(mode='r'), required=True, help='Path to the model config file.')
+    p.add_argument('--config', type=argparse.FileType(mode='r'), required=True, help='Path to the fine-tuning config file (for data paths).')
     p.add_argument('--checkpoint', type=str, required=True, help='Path to the pre-trained model checkpoint file.')
 
     args, unknown = p.parse_known_args()
-    
-    # Save the command-line checkpoint before it gets overwritten by the config
-    cmd_checkpoint = args.checkpoint
 
-    # Load args from config file
+    # Load data paths from the fine-tuning config
     data = yaml.load(args.config, Loader=yaml.FullLoader)
     arg_dict = args.__dict__
     for key, value in data.items():
         arg_dict[key] = value
 
-    # Restore the command-line checkpoint
-    args.checkpoint = cmd_checkpoint
+    # --- Override with correct baseline model architecture and parameters ---
+    print("\n🔧 Overriding model architecture to match baseline checkpoint (biLSTM_TextCNN).")
+    args.model_type = 'biLSTM_TextCNN'
+    args.model_parameters = {
+        'embeddings_dim': 1024,
+        'output_dim': 1,
+        'dropout': 0.25,
+        'kernel_size': 9,
+        'conv_dropout': 0.25
+    }
 
-    # --- Set Defaults for Missing Config Values ---
+    # --- Set Defaults for any other missing values ---
     defaults = {
         'device': 'cuda' if torch.cuda.is_available() else 'cpu',
         'seed': 123,
