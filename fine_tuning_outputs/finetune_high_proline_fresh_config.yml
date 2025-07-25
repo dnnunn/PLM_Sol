@@ -1,0 +1,30 @@
+# Fine-tuning config for high-proline dataset (PLM_Sol)
+# Generated based on the successful baseline YAML for combined_high_1_5sigma
+
+model: biLSTM_TextCNN
+embedding_mode: lm
+key_format: fasta_descriptor
+max_length: 6000
+unknown_solubility: true
+batch_size: 128
+exp_name: finetune_high_proline_fresh
+seed: 123
+optimizer: Adam
+optimizer_parameters:
+  lr: 0.0001
+loss_function: LocCrossEntropy
+output_dim: 1
+kernel_size: 9
+dropout: 0.25
+checkpoint: ''  # Start from baseline/original weights
+
+# Paths to embedding and remapping files (to be filled in after embedding generation)
+train_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/train_emb/t5_embeddings/embeddings_file.h5
+train_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/train_emb/remapped_sequences_file.fasta
+val_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/val_emb/t5_embeddings/embeddings_file.h5
+val_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/val_emb/remapped_sequences_file.fasta
+test_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/test_emb/t5_embeddings/embeddings_file.h5
+test_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/test_emb/remapped_sequences_file.fasta
+
+# Early stopping
+patience: 2
