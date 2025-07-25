@@ -58,11 +58,17 @@ def parse_arguments():
 
     args, unknown = p.parse_known_args()
 
+    # Save the command-line checkpoint before it gets overwritten by the config
+    cmd_checkpoint = args.checkpoint
+
     # Load data paths from the fine-tuning config
     data = yaml.load(args.config, Loader=yaml.FullLoader)
     arg_dict = args.__dict__
     for key, value in data.items():
         arg_dict[key] = value
+
+    # Restore the command-line checkpoint, which was overwritten by the config
+    args.checkpoint = cmd_checkpoint
 
     # --- Override with correct baseline model architecture and parameters ---
     print("\n🔧 Overriding model architecture to match baseline checkpoint (biLSTM_TextCNN).")
