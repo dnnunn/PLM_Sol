@@ -62,41 +62,23 @@ def fix_fasta_headers(fasta_file_path):
     print(f"✅ Fixed {fasta_file_path}")
 
 def main():
-    """Fix FASTA headers in all fine-tuning datasets."""
+    """Fix FASTA headers in the clean_sequences.fasta file on the VM."""
+    fasta_file = Path("/home/david_nunn/PLM_Sol/fasta_files/clean_sequences.fasta")
     print("🔧 Fixing FASTA Headers for PLM_Sol Fine-Tuning (v2)")
     print("=" * 55)
-    
-    # Base directory for fine-tuning datasets (local path)
-    base_dir = Path("/Users/davidnunn/Desktop/Apps/PeptideFusionProject/PLM_Sol/fine_tuning_datasets")
-    
-    if not base_dir.exists():
-        print(f"❌ Dataset directory not found: {base_dir}")
+    print(f"Target file: {fasta_file}")
+    if not fasta_file.exists():
+        print(f"❌ FASTA file not found: {fasta_file}")
         return
-    
-    # Find all FASTA files in dataset directories
-    fasta_files = list(base_dir.glob("*/*.fasta"))
-    
-    if not fasta_files:
-        print(f"❌ No FASTA files found in {base_dir}")
-        return
-    
-    print(f"📁 Found {len(fasta_files)} FASTA files to fix:")
-    for fasta_file in fasta_files:
-        print(f"  - {fasta_file}")
-    
-    print("\n🔧 Starting header fixes...")
+    print("\n🔧 Starting header fix...")
     print("Target format: >seq_id description soluble-0")
     print("PLM_Sol parsing: split(' ')[2].split('-')[-1] should extract '0' or '1'")
-    
-    # Fix each FASTA file
-    for fasta_file in fasta_files:
-        try:
-            fix_fasta_headers(fasta_file)
-        except Exception as e:
-            print(f"❌ Error fixing {fasta_file}: {e}")
-    
-    print(f"\n🎉 Completed fixing {len(fasta_files)} FASTA files!")
-    print("Ready to rerun fine-tuning with correct header parsing.")
+    try:
+        fix_fasta_headers(fasta_file)
+    except Exception as e:
+        print(f"❌ Error fixing {fasta_file}: {e}")
+    print(f"\n🎉 Completed fixing {fasta_file}!")
+    print("Ready to rerun embedding and evaluation with correct header parsing.")
 
 if __name__ == "__main__":
     main()
