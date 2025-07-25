@@ -1,3 +1,5 @@
+global:
+  working_dir: .
 protocol: "embedding"
 sequence_file: "fine_tuning_datasets/high_proline/test.fixed.fasta"
 output:
