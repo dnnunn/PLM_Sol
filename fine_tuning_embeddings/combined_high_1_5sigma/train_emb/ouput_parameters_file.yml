@@ -1,0 +1,34 @@
+t5_embeddings:
+  prefix: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb
+  sequences_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/sequences_file.fasta
+  simple_remapping: false
+  mapping_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/mapping_file.csv
+  remapped_sequences_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/remapped_sequences_file.fasta
+  half_precision: true
+  half_precision_model: true
+  key_format: fasta_descriptor
+  protocol: prottrans_t5_xl_u50
+  type: embed
+  stage_name: t5_embeddings
+  start_time: '2025-07-24 23:36:43.970896+00:00'
+  max_amino_acids: 5000
+  embeddings_transformer_function:
+  discard_per_amino_acid_embeddings: false
+  embeddings_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/t5_embeddings/embeddings_file.h5
+  reduce: false
+  end_time: '2025-07-24 23:37:24.837696+00:00'
+  elapsed_time: 0:00:40.866800
+global:
+  prefix: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb
+  sequences_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/sequences_file.fasta
+  simple_remapping: false
+  mapping_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/mapping_file.csv
+  remapped_sequences_file: 
+    /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/remapped_sequences_file.fasta
+  version: 0.2.2

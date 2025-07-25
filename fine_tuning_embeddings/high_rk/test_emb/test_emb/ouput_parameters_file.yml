@@ -1,0 +1,27 @@
+t5_embeddings:
+  sequences_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/sequences_file.fasta
+  prefix: fine_tuning_embeddings/high_rk/test_emb/test_emb
+  simple_remapping: false
+  mapping_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/mapping_file.csv
+  remapped_sequences_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/remapped_sequences_file.fasta
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: true
+  half_precision: true
+  stage_name: t5_embeddings
+  start_time: '2025-07-25 01:28:56.043898+00:00'
+  max_amino_acids: 5000
+  embeddings_transformer_function:
+  discard_per_amino_acid_embeddings: false
+  embeddings_file: 
+    fine_tuning_embeddings/high_rk/test_emb/test_emb/t5_embeddings/embeddings_file.h5
+  reduce: false
+  end_time: '2025-07-25 01:29:10.967943+00:00'
+  elapsed_time: 0:00:14.924045
+global:
+  sequences_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/sequences_file.fasta
+  prefix: fine_tuning_embeddings/high_rk/test_emb/test_emb
+  simple_remapping: false
+  mapping_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/mapping_file.csv
+  remapped_sequences_file: fine_tuning_embeddings/high_rk/test_emb/test_emb/remapped_sequences_file.fasta
+  version: 0.2.2

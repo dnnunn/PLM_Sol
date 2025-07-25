@@ -1,0 +1,9 @@
+global:
+  prefix: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb
+  sequences_file: /home/david_nunn/PLM_Sol/fine_tuning_datasets/combined_high_1_5sigma/train.fasta
+t5_embeddings:
+  half_precision: true
+  half_precision_model: true
+  key_format: fasta_descriptor
+  protocol: prottrans_t5_xl_u50
+  type: embed

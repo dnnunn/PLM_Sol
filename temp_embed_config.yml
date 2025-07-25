@@ -1,0 +1,11 @@
+global:
+  sequences_file: /home/david_nunn/solubility_data_screening/test_sequences.fasta
+  prefix: temp_plmsol
+
+embedder:
+  model_directory: /home/david_nunn/PLM_Sol/protT5
+  half_precision_model: false
+  
+protocol:
+  - embedder: prottrans_t5_xl_u50
+    reduce: true

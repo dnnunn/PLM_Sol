@@ -1,0 +1,12 @@
+half_precision: true
+half_precision_model: true
+mapping_file: fine_tuning_embeddings/high_proline/val_emb/val_emb/mapping_file.csv
+prefix: fine_tuning_embeddings/high_proline/val_emb/val_emb
+protocol: prottrans_t5_xl_u50
+remapped_sequences_file: 
+  fine_tuning_embeddings/high_proline/val_emb/val_emb/remapped_sequences_file.fasta
+sequences_file: fine_tuning_embeddings/high_proline/val_emb/val_emb/sequences_file.fasta
+simple_remapping: false
+stage_name: t5_embeddings
+start_time: '2025-07-25 01:11:16.592786+00:00'
+type: embed
