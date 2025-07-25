@@ -5,6 +5,7 @@
 - Confirmed `clean_sequences.fasta` as the definitive benchmarking FASTA; deleted `all_sequences.fasta` to avoid confusion.
 - Synchronized all FASTA files between VM and local; established `clean_sequences.fasta` as the only benchmarking input.
 - Created new embedding and evaluation YAMLs for benchmarking (`embedding_clean_benchmark.yml`, `eval_clean_benchmark.yml`).
+- **All YAML configs now use full absolute VM paths (`/home/david_nunn/PLM_Sol/...`) for compatibility; all workflow documentation updated accordingly.**
 - Documented workflow for generating T5 embeddings and running inference with both baseline (`model_param.pth`) and improved (`model-10.t7`) models.
 - Clarified correct usage of `bio_embeddings` CLI for embedding generation.
 - Confirmed one-to-one correspondence between FASTA entries and result CSV rows in benchmarking.
