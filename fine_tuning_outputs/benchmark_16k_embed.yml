@@ -1,0 +1,9 @@
+global:
+  sequences_file: benchmark_16k.fasta
+  prefix: fine_tuning_embeddings/benchmark_16k/benchmark_16k
+
+t5_embeddings:
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: True
+  half_precision: True
