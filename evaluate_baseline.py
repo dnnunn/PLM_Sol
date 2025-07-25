@@ -44,7 +44,7 @@ def evaluate(args):
         return
 
     # 4. Set up the solver and run evaluation
-    solver = Solver(model, args, optimizer_class=torch.optim.Adam)
+    solver = Solver(model, args)
     print("\n🚀 Running evaluation on the test set...")
     solver.evaluation(test_set)
     print("\n🎉 Evaluation complete.")
