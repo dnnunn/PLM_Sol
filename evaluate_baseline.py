@@ -68,7 +68,6 @@ def parse_arguments():
     print("\n🔧 Overriding model architecture to match baseline checkpoint (biLSTM_TextCNN).")
     args.model_type = 'biLSTM_TextCNN'
     args.model_parameters = {
-        'embeddings_dim': 1024,
         'output_dim': 1,
         'dropout': 0.25,
         'kernel_size': 9,
