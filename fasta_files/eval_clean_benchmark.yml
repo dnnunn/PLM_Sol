@@ -5,7 +5,7 @@ model_parameters:
   kernel_size: 9
 checkpoint:
 key_format: fasta_descriptor
-test_embeddings: ~/PLM_Sol/fasta_files/clean_sequences_emb/t5_embeddings/embeddings_file.h5
-test_remapping: ~/PLM_Sol/fasta_files/clean_sequences_emb/remapped_sequences_file.fasta
+test_embeddings: /home/david_nunn/PLM_Sol/fasta_files/clean_sequences_emb/t5_embeddings/embeddings_file.h5
+test_remapping: /home/david_nunn/PLM_Sol/fasta_files/clean_sequences_emb/remapped_sequences_file.fasta
 unknown_solubility: false
 eval_on_test: true
