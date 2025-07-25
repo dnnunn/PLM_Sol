@@ -46,11 +46,17 @@ def evaluate(args):
         checkpoint_path = args.checkpoint
         checkpoint = torch.load(checkpoint_path, map_location=torch.device(args.device))
         if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+<<<<<<< HEAD
             result = model.load_state_dict(checkpoint['model_state_dict'], strict=False)
             print("Model loading result (model_state_dict):", result)
         else:
             result = model.load_state_dict(checkpoint, strict=False)
             print("Model loading result (raw state_dict):", result)
+=======
+            model.load_state_dict(checkpoint['model_state_dict'])
+        else:
+            model.load_state_dict(checkpoint)
+>>>>>>> 1031a1dab75c46798060c2c4894225a3c43a72c7
         print(f"💾 Successfully loaded baseline model weights from: {checkpoint_path}")
     except Exception as e:
         print(f"❌ Error loading checkpoint: {e}")

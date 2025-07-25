@@ -1,0 +1,15 @@
+depends_on: t5_embeddings
+half_precision: true
+half_precision_model: true
+mapping_file: 
+  /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/mapping_file.csv
+prefix: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb
+protocol: la_prott5
+remapped_sequences_file: 
+  /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/remapped_sequences_file.fasta
+sequences_file: 
+  /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/sequences_file.fasta
+simple_remapping: false
+stage_name: annotations_from_t5
+start_time: '2025-07-24 20:10:04.099014+00:00'
+type: extract
