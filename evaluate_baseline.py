@@ -68,6 +68,19 @@ def evaluate(args):
     solver.evaluation(test_set)
     print("\n🎉 Evaluation complete.")
 
+    # --- Write predictions to CSV with unique name ---
+    # Determine output filename based on checkpoint
+    import os
+    checkpoint_name = os.path.basename(checkpoint_path)
+    if checkpoint_name == "model_param.pth":
+        pred_filename = "prediction_16K_baseline.csv"
+    elif checkpoint_name == "model-10.t7":
+        pred_filename = "prediction_16K_optimized.csv"
+    else:
+        pred_filename = f"prediction_16K_{checkpoint_name}.csv"
+    print(f"\n💾 Writing per-sequence predictions to {pred_filename}")
+    solver.predict_evaluation(test_set, filename=pred_filename)
+
 
 def parse_arguments():
     p = argparse.ArgumentParser(description="Baseline Model Evaluation Script")
