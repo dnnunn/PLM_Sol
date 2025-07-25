@@ -51,3 +51,33 @@ The current fine-tuned model should **not** be deployed. The immediate next step
 3.  **Expand the Dataset:** If performance does not improve, consider using the `1σ` dataset, which is larger and may provide a more robust training signal.
 
 This project has successfully laid the groundwork for effective fine-tuning. With these adjustments, we are well-positioned to produce a high-performing, specialized solubility predictor.
+
+---
+
+## 7. Early Stopping Implementation & New Results (July 2025)
+
+### Early Stopping Logic
+- Implemented strict early stopping (patience=2) in the training loop to prevent overfitting.
+- Cleaned up all previous experiment logs and generated a fresh fine-tuning config, ensuring initialization from the original baseline weights (not any fine-tuned checkpoint).
+- All runs used the `combined_high_1_5sigma` dataset and validated on the same test split for direct comparison.
+
+### Results
+
+| Model              | Test Accuracy | Test Average Accuracy |
+| :----------------- | :-----------: | :-------------------: |
+| **Baseline Model** |   **66.5%**   |       **67.5%**       |
+| **Fine-tuned Model (Early Stopping)** | **72.5%** | **70.9%** |
+
+- **Fine-tuned model checkpoint:** `model-10.t7`
+- **Test set size:** 167 sequences
+- **Config:** `fine_tuning_outputs/finetune_combined_high_1_5sigma_fresh_config.yml`
+
+### Interpretation
+- Fine-tuning with early stopping improved test accuracy from **66.5%** (baseline) to **72.5%** (fine-tuned), a substantial and meaningful gain.
+- Early stopping prevented overfitting and ensured the best model was selected based on validation performance.
+- The fine-tuned model now generalizes better and is suitable for downstream benchmarking and integration.
+
+### Next Steps
+- Document these results for reporting and reproducibility.
+- Optionally, analyze further metrics (precision, recall, F1, ROC-AUC) if needed.
+- Proceed to fine-tuning and evaluation on high-proline and high-KR datasets as planned.
