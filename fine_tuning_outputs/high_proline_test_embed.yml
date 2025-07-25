@@ -1,0 +1,9 @@
+protocol: "embedding"
+sequence_file: "fine_tuning_datasets/high_proline/test.fixed.fasta"
+output:
+  path: "fine_tuning_embeddings/high_proline/test_emb"
+  format: "all"
+  overwrite: true
+extractor:
+  name: "seqvec"
+  model: "t5"
