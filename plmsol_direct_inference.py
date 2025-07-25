@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument('--checkpoint', required=True, help='Path to model checkpoint (.pth or .t7)')
     parser.add_argument('--config', required=True, help='YAML config file for model/eval parameters')
     parser.add_argument('--out', required=True, help='Output CSV file')
-    parser.add_argument('--key_format', default='id', help='Key format for embeddings (id or hash)')
+    parser.add_argument('--key_format', default='fasta_descriptor', help='Key format for embeddings (must be "fasta_descriptor" to match wrapper/configs)')
     parser.add_argument('--max_length', type=int, default=4000, help='Maximum sequence length (default: 4000)')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size for inference')
     return parser.parse_args()
