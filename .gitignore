@@ -31,3 +31,6 @@ fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
 =======
 .h5
 >>>>>>> 1031a1dab75c46798060c2c4894225a3c43a72c7
+*.jar
+*.yml
+fine_tuning_embeddings/high_rk/train_emb/mapping_file.csv
