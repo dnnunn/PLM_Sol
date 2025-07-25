@@ -63,14 +63,20 @@ This project has successfully laid the groundwork for effective fine-tuning. Wit
 
 ### Results
 
-| Model              | Test Accuracy | Test Average Accuracy |
-| :----------------- | :-----------: | :-------------------: |
-| **Baseline Model** |   **66.5%**   |       **67.5%**       |
-| **Fine-tuned Model (Early Stopping)** | **72.5%** | **70.9%** |
+| Model              | Test Accuracy | Test Avg Acc | Val Accuracy | Val Avg Acc |
+| :----------------- | :-----------: | :----------: | :----------: | :---------: |
+| **Baseline Model** |   **66.5%**   |   **67.5%**  |   **69.5%**  |  **70.5%**  |
+| **Fine-tuned Model (Early Stopping)** | **72.5%** | **70.9%** | **73.7%** | **72.1%** |
 
 - **Fine-tuned model checkpoint:** `model-10.t7`
-- **Test set size:** 167 sequences
+- **Test/Val set size:** 167 sequences each
 - **Config:** `fine_tuning_outputs/finetune_combined_high_1_5sigma_fresh_config.yml`
+
+#### Validation Set Results
+- **Fine-tuned model:** Validation accuracy = **73.7%**, average accuracy = **72.1%**
+- **Baseline model:** Validation accuracy = **69.5%**, average accuracy = **70.5%**
+
+The fine-tuned model consistently outperforms the baseline on both test and validation splits, confirming robust generalization and the effectiveness of early stopping.
 
 ### Interpretation
 - Fine-tuning with early stopping improved test accuracy from **66.5%** (baseline) to **72.5%** (fine-tuned), a substantial and meaningful gain.
