@@ -19,6 +19,6 @@ model_type: biLSTM_TextCNN
 model_parameters:
   output_dim: 1
   dropout: 0.25
-  conv_dropout: 0.25
-checkpoint: /home/david_nunn/PLM_Sol/checkpoints/baseline_model.pt
+  kernel_size: 9
+checkpoint:
 eval_on_test: true
