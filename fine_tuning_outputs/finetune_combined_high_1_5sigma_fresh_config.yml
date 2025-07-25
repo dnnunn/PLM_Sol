@@ -18,8 +18,7 @@ test_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_
 model_type: biLSTM_TextCNN
 model_parameters:
   output_dim: 1
-  hidden_dim: 32
-  n_hidden_layers: 0
   dropout: 0.25
+  conv_dropout: 0.25
 checkpoint: /home/david_nunn/PLM_Sol/checkpoints/baseline_model.pt
 eval_on_test: true
