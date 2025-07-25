@@ -1,12 +1,9 @@
 global:
-  working_dir: .
-protocol: "embedding"
-prefix: "t5_embeddings"
-sequences_file: "fine_tuning_datasets/high_proline/test.fixed.fasta"
-output:
-  path: "fine_tuning_embeddings/high_proline/test_emb"
-  format: "all"
-  overwrite: true
-extractor:
-  name: "seqvec"
-  model: "t5"
+  sequences_file: fine_tuning_datasets/high_proline/test.fixed.fasta
+  prefix: fine_tuning_embeddings/high_proline/test_emb/test_emb
+
+t5_embeddings:
+  type: embed
+  protocol: prottrans_t5_xl_u50
+  half_precision_model: True
+  half_precision: True
