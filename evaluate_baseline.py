@@ -14,12 +14,23 @@ def evaluate(args):
     """Loads a pre-trained model and evaluates it on a given test set."""
     seed_all(args.seed)
 
-    # 1. Load the test dataset using paths from the config
-    print(f"\n📖 Loading test set from config paths:")
-    print(f"   - Embeddings: {args.test_embeddings}")
-    print(f"   - Remapping: {args.test_remapping}")
+    # 1. Load the test dataset, allowing CLI override for validation or other sets
+    eval_embeddings = getattr(args, 'eval_embeddings', None)
+    eval_remapping = getattr(args, 'eval_remapping', None)
+    if eval_embeddings and eval_remapping:
+        print(f"\n📖 Loading evaluation set from CLI override:")
+        print(f"   - Embeddings: {eval_embeddings}")
+        print(f"   - Remapping: {eval_remapping}")
+        embeddings_path = eval_embeddings
+        remapping_path = eval_remapping
+    else:
+        print(f"\n📖 Loading test set from config paths:")
+        print(f"   - Embeddings: {args.test_embeddings}")
+        print(f"   - Remapping: {args.test_remapping}")
+        embeddings_path = args.test_embeddings
+        remapping_path = args.test_remapping
     transform = transforms.Compose([SolubilityToInt(), ToTensor()])
-    test_set = EmbeddingsDataset(args.test_embeddings, args.test_remapping, args.unknown_solubility,
+    test_set = EmbeddingsDataset(embeddings_path, remapping_path, args.unknown_solubility,
                                  key_format=args.key_format, max_length=args.max_length,
                                  embedding_mode=args.embedding_mode, transform=transform)
 
@@ -55,6 +66,9 @@ def parse_arguments():
     # --- Essential Arguments ---
     p.add_argument('--config', type=argparse.FileType(mode='r'), required=True, help='Path to the fine-tuning config file (for data paths).')
     p.add_argument('--checkpoint', type=str, required=True, help='Path to the pre-trained model checkpoint file.')
+    # --- Optional Evaluation Overrides ---
+    p.add_argument('--eval_embeddings', type=str, default=None, help='Override embeddings file for evaluation (validation or other set)')
+    p.add_argument('--eval_remapping', type=str, default=None, help='Override remapping file for evaluation (validation or other set)')
 
     args, unknown = p.parse_known_args()
 
