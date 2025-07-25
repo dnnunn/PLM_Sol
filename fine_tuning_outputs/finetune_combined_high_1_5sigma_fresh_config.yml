@@ -1,0 +1,25 @@
+experiment_name: PLM_Sol_FineTuning_combined_high_1_5sigma
+num_epochs: 50
+batch_size: 64
+log_iterations: 10
+patience: 2
+optimizer_parameters:
+  lr: 1.0e-4
+target: sol
+unknown_solubility: false
+key_format: fasta_descriptor
+exp_name: finetune_combined_high_1_5sigma_fresh
+train_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/t5_embeddings/embeddings_file.h5
+val_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/t5_embeddings/embeddings_file.h5
+test_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/test_emb/t5_embeddings/embeddings_file.h5
+train_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/remapped_sequences_file.fasta
+val_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/remapped_sequences_file.fasta
+test_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/test_emb/remapped_sequences_file.fasta
+model_type: biLSTM_TextCNN
+model_parameters:
+  output_dim: 1
+  hidden_dim: 32
+  n_hidden_layers: 0
+  dropout: 0.25
+checkpoint: /home/david_nunn/PLM_Sol/checkpoints/baseline_model.pt
+eval_on_test: true
