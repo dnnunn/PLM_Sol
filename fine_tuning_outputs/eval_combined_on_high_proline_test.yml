@@ -11,8 +11,8 @@ key_format: fasta_descriptor
 exp_name: eval_combined_on_high_proline_test
 train_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/t5_embeddings/embeddings_file.h5
 val_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/t5_embeddings/embeddings_file.h5
-test_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/test_emb/test_emb/t5_embeddings/embeddings_file.h5
-test_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/high_proline/test_emb/test_emb/remapped_sequences_file.fasta
+test_embeddings: fine_tuning_embeddings/high_proline/merged_eval/embeddings_file.h5
+test_remapping: fine_tuning_embeddings/high_proline/merged_eval/remapped_sequences_file.fasta
 model_type: biLSTM_TextCNN
 model_parameters:
   output_dim: 1
