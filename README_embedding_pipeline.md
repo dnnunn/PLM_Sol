@@ -70,6 +70,18 @@ For example:
 mkdir -p fine_tuning_embeddings/high_rk/train_emb
 ```
 
+**Before running evaluation, you must also create the output directory for each evaluation run (otherwise run.log and results cannot be written):**
+
+```bash
+mkdir -p outputs/<exp_name>
+```
+Where `<exp_name>` matches the `exp_name` field in your evaluation YAML (e.g., `eval_combined_on_high_rk_train`).
+
+Example:
+```bash
+mkdir -p outputs/eval_combined_on_high_rk_train
+```
+
 ## 2. YAML Config Creation
 Copy the template below and create a new YAML config for each split/subset. Place these in `fine_tuning_outputs/`.
 
