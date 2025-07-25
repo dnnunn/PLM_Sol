@@ -276,7 +276,7 @@ class Solver():
             io.cprint(outstr)
                 
 
-    def predict_evaluation(self, eval_dataset: Dataset):
+    def predict_evaluation(self, eval_dataset: Dataset, filename=None):
         """
         Estimate the standard error on the provided dataset and write it to evaluation_val.txt in the run directory
         Args:
@@ -335,7 +335,7 @@ class Solver():
         prediction_result['sequence'] = [s for i in sequences for s in i]
         prediction_result['predict_result'] = [a for i in predictions for s in i for a in s]
         
-        prediction_result.to_csv('protTrans_prediction_result.csv')
+        prediction_result.to_csv(filename)
        
     def save_checkpoint(self, epoch: int):
         """
