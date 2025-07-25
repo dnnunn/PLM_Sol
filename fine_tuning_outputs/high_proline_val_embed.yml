@@ -1,7 +1,8 @@
 global:
   working_dir: .
 protocol: "embedding"
-sequence_file: "fine_tuning_datasets/high_proline/val.fixed.fasta"
+prefix: "t5_embeddings"
+sequences_file: "fine_tuning_datasets/high_proline/val.fixed.fasta"
 output:
   path: "fine_tuning_embeddings/high_proline/val_emb"
   format: "all"
