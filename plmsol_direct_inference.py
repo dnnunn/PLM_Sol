@@ -65,12 +65,28 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
         transform=transform
     )
     
+    def collate_fn(batch):
+        # Separate sequences and metadata
+        sequences = [item[0] for item in batch]  # Each is [seq_len, 1024]
+        metadata = [item[1] for item in batch]
+        
+        # Get lengths for padding
+        lengths = [seq.size(0) for seq in sequences]
+        max_length = max(lengths)
+        
+        # Pad sequences to max length in the batch
+        padded_sequences = torch.zeros(len(sequences), max_length, sequences[0].size(1))
+        for i, (seq, length) in enumerate(zip(sequences, lengths)):
+            padded_sequences[i, :length] = seq
+            
+        return padded_sequences, metadata
+    
     loader = DataLoader(
         dataset,
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        collate_fn=lambda x: (torch.stack([item[0] for item in x]), [item[1] for item in x])
+        collate_fn=collate_fn
     )
     
     # Run inference
