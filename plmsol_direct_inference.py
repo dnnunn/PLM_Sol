@@ -119,7 +119,7 @@ def main():
     parser.add_argument('--checkpoint', required=True, help='Path to model checkpoint (.t7 or .pth)')
     parser.add_argument('--config', required=True, help='Path to model config file (.yml)')
     parser.add_argument('--out', required=True, help='Output CSV file path')
-    parser.add_argument('--key_format', default='id', choices=['id', 'hash', 'fasta_descriptor'], 
+    parser.add_argument('--key_format', default='fasta_descriptor', choices=['hash', 'fasta_descriptor', 'fasta_descriptor_old'], 
                        help='Key format in the embeddings file')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for inference')
     
