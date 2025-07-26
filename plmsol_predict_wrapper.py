@@ -92,6 +92,35 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     
     # Create inference config with the CORRECT key_format
     config_path = os.path.join(tmpdir, 'inference_config.yml')
+
+    # Use the provided model checkpoint, or default to the original one
+    if model_checkpoint:
+        if os.path.exists(model_checkpoint):
+            checkpoint_path = os.path.abspath(model_checkpoint)
+            print(f"Using provided model checkpoint: {checkpoint_path}")
+        else:
+            # If a name is provided, check in the default output directories
+            potential_path = os.path.join(plmsol_root, 'outputs', model_checkpoint, 'models', 'best_model.pt')
+            if os.path.exists(potential_path):
+                checkpoint_path = potential_path
+                print(f"Found fine-tuned model in experiment: {checkpoint_path}")
+            else:
+                print(f"Warning: Checkpoint '{model_checkpoint}' not found. Falling back to default model.")
+                checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
+    else:
+        checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
+        print(f"Using default model checkpoint: {checkpoint_path}")
+    """Run the PLM_Sol inference with the hardcoded output filename handling"""
+    # Get the directory of this wrapper script - this is the PLM_Sol root directory
+    plmsol_root = os.path.dirname(os.path.abspath(__file__))
+    inference_script = os.path.join(plmsol_root, 'inference.py')
+    
+    # CRITICAL: We must use the remapped_sequences_file from bio_embeddings
+    # NOT create our own remapped file as it must match the embedding keys
+    print(f"Using remapped sequences file at {remapped_sequences_file}")
+    
+    # Create inference config with the CORRECT key_format
+    config_path = os.path.join(tmpdir, 'inference_config.yml')
     # Use the provided model checkpoint, or default to the original one
     if model_checkpoint and os.path.exists(model_checkpoint):
         checkpoint_path = os.path.abspath(model_checkpoint)
@@ -305,7 +334,7 @@ def main():
         # In debug mode, create a persistent temporary directory
         tmpdir = tempfile.mkdtemp(prefix="plmsol_debug_")
         print(f"Debug mode: Temporary directory will be preserved at: {tmpdir}")
-        success = run_pipeline(args.fasta, args.out, tmpdir)
+        success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint)
         print(f"Processing {'succeeded' if success else 'failed'}. Debug files preserved in: {tmpdir}")
     else:
         # Use standard temporary directory that will be cleaned up
