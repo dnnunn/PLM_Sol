@@ -99,13 +99,24 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
             inputs, batch_info = batch
             inputs = inputs.to(device)
             
-            # Forward pass
-            outputs = model(inputs)
+            # Create mask for variable length sequences
+            # 1 for real tokens, 0 for padding
+            mask = (inputs != 0).any(dim=-1).float()
+            
+            # Forward pass with mask
+            if hasattr(model, 'forward') and 'mask' in model.forward.__code__.co_varnames:
+                outputs = model(inputs, mask=mask)
+            else:
+                outputs = model(inputs)
+                
+            if isinstance(outputs, tuple):
+                outputs = outputs[0]  # Take first output if multiple returned
+                
             predictions = torch.sigmoid(outputs).cpu().numpy().flatten()
             
             # Extract sequence info
-            batch_ids = [info['id'] for info in batch_info]
-            batch_seqs = [info['sequence'] for info in batch_info]
+            batch_ids = [info['metadata']['id'] for info in batch_info]
+            batch_seqs = [info['metadata']['sequence'] for info in batch_info]
             
             all_predictions.extend(predictions)
             all_sequences.extend(batch_seqs)
