@@ -74,27 +74,43 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
     # Create args object for Solver
     solver_args = Args(**args_dict)
     
+    # Create a temporary output file for the solver
+    temp_output = os.path.join(os.path.dirname(output_path), 'temp_predictions.csv')
+    
     # Initialize solver
     solver = Solver(model, solver_args, torch.optim.Adam)
     
-    # Run prediction
-    predictions, ids, sequences = solver.predict_evaluation(dataset)
+    # Run prediction - this will save to temp_output
+    solver.predict_evaluation(dataset, filename=temp_output)
     
-    # Create output DataFrame
-    results = pd.DataFrame({
-        'Accession': ids,
-        'Sequence': sequences,
-        'Predictor': 'PLM_Sol',
-        'SolubilityScore': predictions,
-        'Probability_Soluble': predictions,
-        'Probability_Insoluble': 1 - np.array(predictions)
-    })
-    
-    # Save results
-    os.makedirs(os.path.dirname(os.path.abspath(output_path)) or '.', exist_ok=True)
-    results.to_csv(output_path, index=False)
-    print(f"Predictions saved to {output_path}")
-    return results
+    try:
+        # Read the temporary output file
+        results = pd.read_csv(temp_output)
+        
+        # Rename columns to match our standard format
+        results = results.rename(columns={
+            'protein_ID': 'Accession',
+            'sequence': 'Sequence',
+            'predict_result': 'SolubilityScore'
+        })
+        
+        # Add additional columns
+        results['Predictor'] = 'PLM_Sol'
+        results['Probability_Soluble'] = results['SolubilityScore']
+        results['Probability_Insoluble'] = 1 - results['SolubilityScore']
+        
+        # Save to the final output path
+        results.to_csv(output_path, index=False)
+        print(f"Predictions saved to {output_path}")
+        return results
+        
+    except Exception as e:
+        print(f"Error processing results: {e}")
+        raise
+    finally:
+        # Clean up the temporary file if it exists
+        if os.path.exists(temp_output):
+            os.remove(temp_output)
 
 
 def main():
