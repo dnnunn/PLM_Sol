@@ -80,7 +80,7 @@ def run_embeddings(fasta_path, embeddings_dir):
     # Note: bio_embeddings tool creates a t5_embeddings/ subdirectory
     return os.path.join(abs_embeddings_dir, 't5_embeddings', 'embeddings_file.h5')
 
-def run_inference(embeddings_file, remapped_sequences_file, tmpdir):
+def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint=None):
     """Run the PLM_Sol inference with the hardcoded output filename handling"""
     # Get the directory of this wrapper script - this is the PLM_Sol root directory
     plmsol_root = os.path.dirname(os.path.abspath(__file__))
@@ -92,7 +92,13 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir):
     
     # Create inference config with the CORRECT key_format
     config_path = os.path.join(tmpdir, 'inference_config.yml')
-    checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
+    # Use the provided model checkpoint, or default to the original one
+    if model_checkpoint and os.path.exists(model_checkpoint):
+        checkpoint_path = os.path.abspath(model_checkpoint)
+        print(f"Using provided model checkpoint: {checkpoint_path}")
+    else:
+        checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
+        print(f"Using default model checkpoint: {checkpoint_path}")
     
     # Construct inference configuration with key_format="fasta_descriptor"
     config = {
@@ -290,6 +296,7 @@ def main():
     parser = argparse.ArgumentParser(description="Minimal PLM_Sol predictor wrapper")
     parser.add_argument('--fasta', '-f', required=True, help='Input FASTA file')
     parser.add_argument('--out', '-o', required=True, help='Output CSV file')
+    parser.add_argument('--model_checkpoint', help='Path to a specific model checkpoint file (.t7)')
     parser.add_argument('--debug', action='store_true', help='Keep temporary files for debugging')
     args = parser.parse_args()
     
@@ -303,9 +310,9 @@ def main():
     else:
         # Use standard temporary directory that will be cleaned up
         with tempfile.TemporaryDirectory() as tmpdir:
-            success = run_pipeline(args.fasta, args.out, tmpdir)
+            success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint)
 
-def run_pipeline(fasta_path, output_path, tmpdir):
+def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None):
     """Run the PLM_Sol prediction pipeline with error handling"""
     try:
         print(f"Starting PLM_Sol prediction for {fasta_path}")
@@ -329,7 +336,7 @@ def run_pipeline(fasta_path, output_path, tmpdir):
         print(f"Found remapped sequences file at {remapped_sequences_file}")
         
         # Step 2: Run inference with the remapped sequences file
-        prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir)
+        prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint)
         
         if prediction_file and os.path.exists(prediction_file):
             # Step 3: Format results - PASS THE REMAPPED_SEQUENCES_FILE
