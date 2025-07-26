@@ -6,7 +6,6 @@ model_type: 'PLMSol'
 model_parameters:
   # These are the default parameters for the PLMSol model, taken from the original repo's configs
   # We may not need all of them for evaluation, but it's safer to include them.
-  num_classes: 1
   hid_dim_alpha: 128
   hid_dim_beta: 128
   n_filters: 128
