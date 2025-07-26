@@ -43,6 +43,7 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
         'model_type': config['model_type'],
         'model_parameters': config.get('model_parameters', {}),
         'optimizer': 'Adam',  # Default optimizer, won't be used for inference
+        'optimizer_parameters': {'lr': 0.001},  # Default learning rate
         'checkpoint': checkpoint_path,
         'device': 'cuda' if torch.cuda.is_available() else 'cpu'
     }
