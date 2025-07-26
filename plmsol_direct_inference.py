@@ -75,10 +75,17 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
         max_length = max(lengths)
         
         # Pad sequences to max length in the batch
-        padded_sequences = torch.zeros(len(sequences), max_length, sequences[0].size(1))
+        # Input shape needs to be [batch_size, seq_len, features]
+        batch_size = len(sequences)
+        feature_dim = sequences[0].size(1)  # Should be 1024 for T5
+        padded_sequences = torch.zeros((batch_size, max_length, feature_dim))
+        
         for i, (seq, length) in enumerate(zip(sequences, lengths)):
-            padded_sequences[i, :length] = seq
-            
+            padded_sequences[i, :length, :] = seq
+        
+        # Transpose to [seq_len, batch_size, features] for LSTM
+        # padded_sequences = padded_sequences.transpose(0, 1)
+        
         return padded_sequences, metadata
     
     loader = DataLoader(
