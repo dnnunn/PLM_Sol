@@ -12,49 +12,54 @@ import argparse
 import torch
 import pandas as pd
 import numpy as np
-from torch.utils.data import DataLoader
 from datasets.embeddings_dataset import Embeddings_predict_Dataset
 from datasets.transforms import predict_ToTensor, Solubility_predict_ToInt
 from torchvision.transforms import transforms
 from solver import Solver
 from models import *
 import yaml
+import copy
 
 
-def load_model(config_path, checkpoint_path, device='cuda' if torch.cuda.is_available() else 'cpu'):
-    """Load the model from config and checkpoint"""
+def predict(embeddings_path, remapping_path, config_path, checkpoint_path, output_path, 
+           key_format='fasta_descriptor', batch_size=16):
+    """Run prediction on pre-computed embeddings using the Solver class"""
     # Load config
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     
+    # Create args namespace similar to inference.py
+    class Args:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+    
+    args_dict = {
+        'embeddings': embeddings_path,
+        'remapping': remapping_path,
+        'key_format': key_format,
+        'batch_size': batch_size,
+        'log_iterations': -1,  # Disable logging
+        'distance_threshold': -1.0,  # Always use denovo predictions
+        'model_type': config['model_type'],
+        'model_parameters': config.get('model_parameters', {}),
+        'optimizer': 'Adam',  # Default optimizer, won't be used for inference
+        'checkpoint': checkpoint_path,
+        'device': 'cuda' if torch.cuda.is_available() else 'cpu'
+    }
+    
     # Initialize model
     model_class = globals()[config['model_type']]
-    model_params = config.get('model_parameters', {})
-    
-    # Special handling for biLSTM_TextCNN
-    if config['model_type'] == 'biLSTM_TextCNN':
-        model_params['embeddings_dim'] = 1024  # T5 embedding dimension
-    
-    model = model_class(**model_params)
+    model = model_class(**args_dict['model_parameters'])
     
     # Load checkpoint
     if checkpoint_path and os.path.exists(checkpoint_path):
-        state_dict = torch.load(checkpoint_path, map_location=device)
+        state_dict = torch.load(checkpoint_path, map_location=args_dict['device'])
         if isinstance(state_dict, dict) and 'model_state_dict' in state_dict:
             state_dict = state_dict['model_state_dict']
         model.load_state_dict(state_dict)
     
-    model = model.to(device)
+    model = model.to(args_dict['device'])
     model.eval()
-    return model, config
-
-
-def predict(embeddings_path, remapping_path, config_path, checkpoint_path, output_path, key_format='id', batch_size=128):
-    """Run prediction on pre-computed embeddings"""
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    
-    # Load model
-    model, config = load_model(config_path, checkpoint_path, device)
     
     # Set up data loading
     transform = transforms.Compose([Solubility_predict_ToInt(), predict_ToTensor()])
@@ -65,78 +70,23 @@ def predict(embeddings_path, remapping_path, config_path, checkpoint_path, outpu
         transform=transform
     )
     
-    def collate_fn(batch):
-        # Separate sequences and metadata
-        sequences = [item[0] for item in batch]  # Each is [seq_len, 1024]
-        metadata = [item[1] for item in batch]
-        
-        # Get lengths for padding
-        lengths = [seq.size(0) for seq in sequences]
-        max_length = max(lengths)
-        
-        # Pad sequences to max length in the batch
-        # Input shape needs to be [batch_size, seq_len, features]
-        batch_size = len(sequences)
-        feature_dim = sequences[0].size(1)  # Should be 1024 for T5
-        padded_sequences = torch.zeros((batch_size, max_length, feature_dim))
-        
-        for i, (seq, length) in enumerate(zip(sequences, lengths)):
-            padded_sequences[i, :length, :] = seq
-        
-        # Transpose to [seq_len, batch_size, features] for LSTM
-        # padded_sequences = padded_sequences.transpose(0, 1)
-        
-        return padded_sequences, metadata
+    # Create args object for Solver
+    solver_args = Args(**args_dict)
     
-    loader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        drop_last=False,
-        collate_fn=collate_fn
-    )
+    # Initialize solver
+    solver = Solver(model, solver_args, torch.optim.Adam)
     
-    # Run inference
-    all_predictions = []
-    all_sequences = []
-    all_ids = []
-    
-    with torch.no_grad():
-        for batch in loader:
-            inputs, batch_info = batch
-            inputs = inputs.to(device)
-            
-            # Create mask for variable length sequences
-            # 1 for real tokens, 0 for padding
-            mask = (inputs != 0).any(dim=-1).float()
-            
-            # Forward pass with mask
-            if hasattr(model, 'forward') and 'mask' in model.forward.__code__.co_varnames:
-                outputs = model(inputs, mask=mask)
-            else:
-                outputs = model(inputs)
-                
-            if isinstance(outputs, tuple):
-                outputs = outputs[0]  # Take first output if multiple returned
-                
-            predictions = torch.sigmoid(outputs).cpu().numpy().flatten()
-            
-            # Extract sequence info
-            batch_ids = [info['metadata']['id'] for info in batch_info]
-            batch_seqs = [info['metadata']['sequence'] for info in batch_info]
-            
-            all_predictions.extend(predictions)
-            all_sequences.extend(batch_seqs)
-            all_ids.extend(batch_ids)
+    # Run prediction
+    predictions, ids, sequences = solver.predict_evaluation(dataset)
     
     # Create output DataFrame
     results = pd.DataFrame({
-        'Accession': all_ids,
-        'Sequence': all_sequences,
+        'Accession': ids,
+        'Sequence': sequences,
         'Predictor': 'PLM_Sol',
-        'SolubilityScore': all_predictions,
-        'Probability_Soluble': all_predictions,
-        'Probability_Insoluble': 1 - np.array(all_predictions)
+        'SolubilityScore': predictions,
+        'Probability_Soluble': predictions,
+        'Probability_Insoluble': 1 - np.array(predictions)
     })
     
     # Save results
@@ -153,9 +103,10 @@ def main():
     parser.add_argument('--checkpoint', required=True, help='Path to model checkpoint (.t7 or .pth)')
     parser.add_argument('--config', required=True, help='Path to model config file (.yml)')
     parser.add_argument('--out', required=True, help='Output CSV file path')
-    parser.add_argument('--key_format', default='fasta_descriptor', choices=['hash', 'fasta_descriptor', 'fasta_descriptor_old'], 
+    parser.add_argument('--key_format', default='fasta_descriptor', 
+                       choices=['hash', 'fasta_descriptor', 'fasta_descriptor_old'], 
                        help='Key format in the embeddings file')
-    parser.add_argument('--batch_size', type=int, default=128, help='Batch size for inference')
+    parser.add_argument('--batch_size', type=int, default=16, help='Batch size for inference')
     
     args = parser.parse_args()
     
