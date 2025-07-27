@@ -103,13 +103,18 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     
     return output_file
 
-def run_original_plm_sol_wrapper(fasta_file, output_file):
+def run_original_plm_sol_wrapper(fasta_file, output_file, model_checkpoint=None):
     """Run the original working PLM_Sol wrapper"""
     
     # Use the original wrapper that we know works
     wrapper_path = '/home/david_nunn/PLM_Sol/plmsol_predict_wrapper.py'
     
     cmd = ['python', wrapper_path, '--fasta', fasta_file, '--out', output_file]
+    
+    # Add model checkpoint if provided
+    if model_checkpoint:
+        cmd.extend(['--model_checkpoint', model_checkpoint])
+    
     print(f"Running original PLM_Sol wrapper: {' '.join(cmd)}")
     
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -152,6 +157,7 @@ def main():
     parser.add_argument('--out', required=True, help='Output CSV file')
     parser.add_argument('--max_length', type=int, default=4000, 
                        help='Maximum sequence length to process (default: 4000)')
+    parser.add_argument('--model_checkpoint', help='Path to model checkpoint file')
     
     args = parser.parse_args()
     
@@ -177,7 +183,7 @@ def main():
         
         # Run PLM_Sol on filtered sequences using the original working wrapper
         try:
-            success = run_original_plm_sol_wrapper(filtered_fasta, temp_output)
+            success = run_original_plm_sol_wrapper(filtered_fasta, temp_output, args.model_checkpoint)
             
             if success and os.path.exists(temp_output):
                 # Merge results with filtered sequences
