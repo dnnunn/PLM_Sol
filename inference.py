@@ -26,7 +26,12 @@ def inference(args):
 
     # Needs "from torch.optim import *" and "from models import *" to work
     solver = Solver(model, args, globals()[args.optimizer])
-    return solver.predict_evaluation(data_set)
+    
+    # CRITICAL FIX: Save predictions to the expected output file
+    # Use output_files_name from config, or default to protTrans_prediction_result.csv
+    output_filename = getattr(args, 'output_files_name', 'protTrans_prediction_result') + '.csv'
+    
+    return solver.predict_evaluation(data_set, filename=output_filename)
 
 
 def parse_arguments():
