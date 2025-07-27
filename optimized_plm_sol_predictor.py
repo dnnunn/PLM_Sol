@@ -205,6 +205,13 @@ class OptimizedPLMSolPredictor:
         
         # Step 3: Combine and sort results
         all_results = cached_results + new_results
+        
+        # Ensure all results have index field before sorting
+        for result in all_results:
+            if 'index' not in result:
+                logger.error(f"Result missing 'index' field: {result}")
+                raise KeyError("Result missing 'index' field")
+        
         all_results.sort(key=lambda x: x['index'])
         
         # Remove index field and ensure we have results for all sequences
@@ -212,8 +219,10 @@ class OptimizedPLMSolPredictor:
         for i, sequence in enumerate(sequences):
             result = next((r for r in all_results if r['index'] == i), None)
             if result:
-                del result['index']
-                final_results.append(result)
+                # Create a copy to avoid modifying the original
+                result_copy = result.copy()
+                del result_copy['index']
+                final_results.append(result_copy)
             else:
                 # Fallback for missing results
                 final_results.append({
