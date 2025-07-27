@@ -119,14 +119,14 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     
     # CRITICAL: Use the exact config format that worked before
     config = {
-        'output_files_name': 'test_inference',
+        'output_files_name': 'protTrans_prediction_result',  # This controls the output filename
         'log_iterations': 100,
         'n_draws': 1000,
         'batch_size': 1,
-        'checkpoint': checkpoint_path,
+        'checkpoints_list': [checkpoint_path],  # Must be a list, not single value
         'key_format': 'fasta_descriptor',  # CRITICAL: From memories - this is the working format
-        'embeddings_file': os.path.abspath(embeddings_file),
-        'remapped_sequences_file': os.path.abspath(remapped_sequences_file)
+        'embeddings': os.path.abspath(embeddings_file),  # Not 'embeddings_file'
+        'remapping': os.path.abspath(remapped_sequences_file)  # Not 'remapped_sequences_file'
     }
     
     with open(config_path, 'w') as f:
