@@ -31,7 +31,11 @@ import pandas as pd
 import hashlib
 
 # Import our persistent cache
-from .persistent_embedding_cache import PersistentEmbeddingCache
+try:
+    from .persistent_embedding_cache import PersistentEmbeddingCache
+except ImportError:
+    # Fallback for direct execution
+    from persistent_embedding_cache import PersistentEmbeddingCache
 
 logger = logging.getLogger(__name__)
 
