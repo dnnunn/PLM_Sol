@@ -142,7 +142,8 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     abs_config_path = os.path.abspath(config_path)
     
     # Build command - use python directly since we're in the right conda env
-    cmd = ["python", inference_script, abs_config_path]
+    # CRITICAL: inference.py expects --config as a named argument, not positional
+    cmd = ["python", inference_script, "--config", abs_config_path]
     
     print(f"DEBUG: Running inference command: {' '.join(cmd)}")
     print(f"DEBUG: Working directory: {plmsol_root}")
