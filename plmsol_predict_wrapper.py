@@ -80,7 +80,9 @@ def run_embeddings(fasta_path, embeddings_dir):
     # Note: bio_embeddings tool creates a t5_embeddings/ subdirectory
     return os.path.join(abs_embeddings_dir, 't5_embeddings', 'embeddings_file.h5')
 
-def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint=None):
+import uuid
+
+def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint=None, unique_output_path=None):
     """Run the PLM_Sol inference with the hardcoded output filename handling"""
     # Get the directory of this wrapper script - this is the PLM_Sol root directory
     plmsol_root = os.path.dirname(os.path.abspath(__file__))
@@ -179,7 +181,17 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
         hardcoded_output = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
         if os.path.exists(hardcoded_output):
             print(f"Found hardcoded output file at {hardcoded_output}")
-            return hardcoded_output
+            # If a unique output path is given, move the file there
+            if unique_output_path:
+                try:
+                    shutil.move(hardcoded_output, unique_output_path)
+                    print(f"Moved output to unique file: {unique_output_path}")
+                    return unique_output_path
+                except Exception as e:
+                    print(f"Error moving output to unique file: {e}")
+                    return hardcoded_output
+            else:
+                return hardcoded_output
         else:
             print(f"Expected output file not found at {hardcoded_output}")
             return None
@@ -326,22 +338,24 @@ def main():
     parser.add_argument('--fasta', '-f', required=True, help='Input FASTA file')
     parser.add_argument('--out', '-o', required=True, help='Output CSV file')
     parser.add_argument('--model_checkpoint', help='Path to a specific model checkpoint file (.t7)')
+    parser.add_argument('--unique_out', help='(Optional) Unique output CSV file for this run')
     parser.add_argument('--debug', action='store_true', help='Keep temporary files for debugging')
     args = parser.parse_args()
     
     # Use a temporary directory for intermediates
+    unique_out = args.unique_out if args.unique_out else None
     if args.debug:
         # In debug mode, create a persistent temporary directory
         tmpdir = tempfile.mkdtemp(prefix="plmsol_debug_")
         print(f"Debug mode: Temporary directory will be preserved at: {tmpdir}")
-        success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint)
+        success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint, unique_out)
         print(f"Processing {'succeeded' if success else 'failed'}. Debug files preserved in: {tmpdir}")
     else:
         # Use standard temporary directory that will be cleaned up
         with tempfile.TemporaryDirectory() as tmpdir:
-            success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint)
+            success = run_pipeline(args.fasta, args.out, tmpdir, args.model_checkpoint, unique_out)
 
-def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None):
+def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None, unique_output_path=None):
     """Run the PLM_Sol prediction pipeline with error handling"""
     try:
         print(f"Starting PLM_Sol prediction for {fasta_path}")
@@ -365,7 +379,7 @@ def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None):
         print(f"Found remapped sequences file at {remapped_sequences_file}")
         
         # Step 2: Run inference with the remapped sequences file
-        prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint)
+        prediction_file = run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint, unique_output_path=unique_output_path)
         
         if prediction_file and os.path.exists(prediction_file):
             # Step 3: Format results - PASS THE REMAPPED_SEQUENCES_FILE
