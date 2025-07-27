@@ -155,6 +155,11 @@ class OptimizedPLMSolPredictor:
         sequence_indices = {}  # Map sequence -> original indices
         
         for i, sequence in enumerate(sequences):
+            # Always track sequence indices for proper result mapping
+            if sequence not in sequence_indices:
+                sequence_indices[sequence] = []
+            sequence_indices[sequence].append(i)
+            
             # Check if we have a cached prediction (not just embedding)
             cached_prediction = self._get_cached_prediction(sequence)
             
@@ -169,9 +174,6 @@ class OptimizedPLMSolPredictor:
                 self.performance_stats['cache_hits'] += 1
             else:
                 uncached_sequences.append(sequence)
-                if sequence not in sequence_indices:
-                    sequence_indices[sequence] = []
-                sequence_indices[sequence].append(i)
                 self.performance_stats['cache_misses'] += 1
         
         logger.info(f"Cache performance: {len(cached_results)} hits, {len(uncached_sequences)} misses")
