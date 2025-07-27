@@ -81,83 +81,96 @@ def run_embeddings(fasta_path, embeddings_dir):
     return os.path.join(abs_embeddings_dir, 't5_embeddings', 'embeddings_file.h5')
 
 def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkpoint=None):
-    """Run the PLM_Sol inference with the hardcoded output filename handling"""
+    """Run the PLM_Sol inference using the proven working approach from memories"""
     # Get the directory of this wrapper script - this is the PLM_Sol root directory
     plmsol_root = os.path.dirname(os.path.abspath(__file__))
     inference_script = os.path.join(plmsol_root, 'inference.py')
     
-    # CRITICAL: We must use the remapped_sequences_file from bio_embeddings
-    # NOT create our own remapped file as it must match the embedding keys
-    print(f"Using remapped sequences file at {remapped_sequences_file}")
+    print(f"DEBUG: PLM_Sol root directory: {plmsol_root}")
+    print(f"DEBUG: Inference script: {inference_script}")
+    print(f"DEBUG: Embeddings file: {embeddings_file}")
+    print(f"DEBUG: Remapped sequences file: {remapped_sequences_file}")
     
-    # Create inference config with the CORRECT key_format
-    config_path = os.path.join(tmpdir, 'inference_config.yml')
-    # Use the provided model checkpoint, or default to the original one
+    # Verify required files exist
+    if not os.path.exists(inference_script):
+        raise RuntimeError(f"Inference script not found: {inference_script}")
+    if not os.path.exists(embeddings_file):
+        raise RuntimeError(f"Embeddings file not found: {embeddings_file}")
+    if not os.path.exists(remapped_sequences_file):
+        raise RuntimeError(f"Remapped sequences file not found: {remapped_sequences_file}")
+    
+    # Use the provided model checkpoint, or default to the optimized one
     if model_checkpoint and os.path.exists(model_checkpoint):
         checkpoint_path = os.path.abspath(model_checkpoint)
-        print(f"Using provided model checkpoint: {checkpoint_path}")
+        print(f"DEBUG: Using provided model checkpoint: {checkpoint_path}")
     else:
-        checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
-        print(f"Using default model checkpoint: {checkpoint_path}")
+        # Default to the optimized model from memories
+        checkpoint_path = os.path.join(plmsol_root, 'saved_models', 'model-10.t7')
+        if not os.path.exists(checkpoint_path):
+            # Fallback to original model
+            checkpoint_path = os.path.join(plmsol_root, 'model_param', 'model_param.t7')
+        print(f"DEBUG: Using default model checkpoint: {checkpoint_path}")
     
-    # Construct inference configuration with key_format="fasta_descriptor"
+    if not os.path.exists(checkpoint_path):
+        raise RuntimeError(f"Model checkpoint not found: {checkpoint_path}")
+    
+    # Create inference config using the PROVEN working format from memories
+    config_path = os.path.join(tmpdir, 'inference_config.yml')
+    
+    # CRITICAL: Use the exact config format that worked before
     config = {
         'output_files_name': 'test_inference',
         'log_iterations': 100,
         'n_draws': 1000,
         'batch_size': 1,
-        'checkpoints_list': [checkpoint_path],
-        'embeddings': os.path.abspath(embeddings_file),
-        'remapping': os.path.abspath(remapped_sequences_file),
-        'key_format': 'fasta_descriptor'  # CRITICAL: This must be fasta_descriptor
+        'checkpoint': checkpoint_path,
+        'key_format': 'fasta_descriptor',  # CRITICAL: From memories - this is the working format
+        'embeddings_file': os.path.abspath(embeddings_file),
+        'remapped_sequences_file': os.path.abspath(remapped_sequences_file)
     }
     
-    # Write the config file
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
-    print(f"Created inference config at {config_path}")
     
-    # CRITICAL: Save current working directory
-    original_cwd = os.getcwd()
+    print(f"DEBUG: Created inference config at {config_path}")
+    print(f"DEBUG: Config contents: {config}")
     
-    try:
-        # CRITICAL: Change to PLM_Sol root directory for inference
-        os.chdir(plmsol_root)
-        print(f"Changed working directory to {plmsol_root} for inference")
-        
-        # Run inference - using absolute path to config since we changed directories
-        abs_config_path = os.path.abspath(config_path)
-        cmd = f"python inference.py --config {abs_config_path}"
-        
-        print(f"Running inference command: {cmd}")
-        
-        # Run inference process
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        
-        # Print output regardless of success or failure
-        if result.stdout:
-            print(f"Inference stdout: {result.stdout}")
-        if result.stderr:
-            print(f"Inference stderr: {result.stderr}")
-        
-        # Check return code
-        if result.returncode != 0:
-            print(f"Inference failed with code {result.returncode}")
-            print(result.stderr)
-            return None
-        
-        # CRITICAL: PLM_Sol hardcodes the output file name in the root directory
-        hardcoded_output = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
-        if os.path.exists(hardcoded_output):
-            print(f"Found hardcoded output file at {hardcoded_output}")
-            return hardcoded_output
-        else:
-            print(f"Expected output file not found at {hardcoded_output}")
-            return None
-    finally:
-        # CRITICAL: Return to original working directory
-        os.chdir(original_cwd)
-        print(f"Restored working directory to {original_cwd}")
+    # CRITICAL: Must run from PLM_Sol root directory (from memories)
+    # PLM_Sol writes output to hardcoded "protTrans_prediction_result.csv" in current directory
+    
+    # Use absolute path for config when changing directories
+    abs_config_path = os.path.abspath(config_path)
+    
+    # Build command - use python directly since we're in the right conda env
+    cmd = ["python", inference_script, abs_config_path]
+    
+    print(f"DEBUG: Running inference command: {' '.join(cmd)}")
+    print(f"DEBUG: Working directory: {plmsol_root}")
+    
+    # Execute from PLM_Sol root directory (CRITICAL from memories)
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=plmsol_root)
+    
+    # Print output for debugging
+    print(f"DEBUG: Inference return code: {result.returncode}")
+    if result.stdout:
+        print(f"DEBUG: Inference stdout: {result.stdout}")
+    if result.stderr:
+        print(f"DEBUG: Inference stderr: {result.stderr}")
+    
+    # Check return code
+    if result.returncode != 0:
+        raise RuntimeError(f"Inference failed with code {result.returncode}: {result.stderr}")
+    
+    # Return the path to the hardcoded output file (from memories)
+    prediction_file = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
+    
+    if not os.path.exists(prediction_file):
+        print(f"ERROR: Expected output file not found: {prediction_file}")
+        print(f"DEBUG: Files in PLM_Sol root: {os.listdir(plmsol_root)}")
+        raise RuntimeError(f"Expected output file not found: {prediction_file}")
+    
+    print(f"DEBUG: Inference completed successfully, output at {prediction_file}")
+    return prediction_file
 
 def format_results(prediction_file, fasta_path, output_path, remapped_sequences_file=None):
     """Format the PLM_Sol results to match the benchmarking standard"""
