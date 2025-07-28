@@ -34,8 +34,28 @@ def main():
 
     print(f"[1/3] Requesting embeddings from server for: {fasta_path}")
     t0 = time.time()
-    with open(fasta_path, 'rb') as f:
-        response = requests.post(args.embeddings_server_url, files={'file': f})
+    # Parse FASTA file to extract sequences as a list of strings
+    sequences = []
+    with open(fasta_path, 'r') as f:
+        seq = ''
+        for line in f:
+            line = line.strip()
+            if line.startswith('>'):
+                if seq:
+                    sequences.append(seq)
+                    seq = ''
+            elif line:
+                seq += line
+        if seq:
+            sequences.append(seq)
+    if not sequences:
+        print(f"ERROR: No sequences found in FASTA file {fasta_path}")
+        sys.exit(1)
+    # POST as JSON to server
+    response = requests.post(
+        args.embeddings_server_url,
+        json={'sequences': sequences}
+    )
     if response.status_code != 200:
         print(f"ERROR: Embedding server returned status {response.status_code}")
         sys.exit(1)
