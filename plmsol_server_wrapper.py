@@ -25,35 +25,45 @@ from inference import inference
 import yaml
 
 
-def create_inference_config(model_checkpoint, remapping_file, output_file):
+def create_inference_config(model_checkpoint, fasta_file, output_file):
     """
-    Create inference configuration for PLM_Sol.
+    Create minimal inference configuration for PLM_Sol.
     
     Args:
         model_checkpoint: Path to model checkpoint
-        remapping_file: Path to remapped FASTA file
-        output_file: Path for output CSV
+        fasta_file: Path to input FASTA file
+        output_file: Path for output CSV file
         
     Returns:
-        Namespace object with inference configuration
+        Args object with minimal configuration
     """
-    # Create a minimal config similar to configs/inference.yaml
+    
+    # Complete configuration for inference (based on working fine-tuning config)
     config = {
+        'checkpoint': model_checkpoint,
+        'embeddings': fasta_file,  # Will be overridden by server embeddings
+        'remapping': fasta_file,   # Will be overridden by server embeddings
+        'key_format': 'fasta_descriptor',
+        'batch_size': 1,
+        'output_files_name': output_file,
+        'log_iterations': 100,
+        'n_draws': 1000,
+        'target': 'sol',
+        'unknown_solubility': False,
         'model_type': 'biLSTM_TextCNN',
         'model_parameters': {
+            'output_dim': 1,
             'dropout': 0.25,
-            'kernel_size': 7,
-            'output_dim': 32
+            'kernel_size': 9
         },
-        'optimizer': 'Adam',
-        'checkpoint': model_checkpoint,
-        'key_format': 'fasta_descriptor',
-        'embedding_mode': 'lm',
-        'batch_size': 16,
-        'log_iterations': -1,
-        'output_files_name': output_file.replace('.csv', ''),
-        'remapping': remapping_file,
-        'embeddings': None  # Will be provided via server_embeddings parameter
+        # CRITICAL: Add missing optimizer_parameters (required by Solver)
+        'optimizer': 'Adam',  # Default optimizer
+        'optimizer_parameters': {
+            'lr': 1.0e-4  # Default learning rate
+        },
+        # Additional fields that may be needed
+        'experiment_name': 'server_inference',
+        'exp_name': 'server_inference'
     }
     
     # Convert to namespace object
