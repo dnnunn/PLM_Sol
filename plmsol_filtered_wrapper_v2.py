@@ -26,20 +26,20 @@ import json
 def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file, model_checkpoint):
     """
     Run PLM_Sol using server-provided embeddings (FAST PATH).
-    Uses the proven server wrapper approach.
+    Uses direct PLM_Sol inference with server embeddings.
     """
     try:
-        # Use the proven server wrapper that we already debugged
+        # Use the working direct inference approach with server embeddings
         cmd = [
             'conda', 'run', '-n', 'PLM_Sol',
-            'python', '/home/david_nunn/PLM_Sol/plmsol_server_wrapper.py',
+            'python', '/home/david_nunn/PLM_Sol/plmsol_direct_inference.py',
             '--fasta', fasta_file,
-            '--out', output_file,
+            '--output', output_file,
             '--embeddings_file', embeddings_file,
             '--model_checkpoint', model_checkpoint
         ]
         
-        print(f"Running server-based PLM_Sol: {' '.join(cmd)}")
+        print(f"Running direct PLM_Sol inference with server embeddings: {' '.join(cmd)}")
         
         result = subprocess.run(
             cmd,
@@ -50,15 +50,15 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         )
         
         if result.returncode == 0:
-            print(f"Server-based PLM_Sol completed successfully")
+            print(f"Direct PLM_Sol inference completed successfully")
             return True
         else:
-            print(f"Server-based PLM_Sol failed with return code {result.returncode}")
+            print(f"Direct PLM_Sol inference failed with return code {result.returncode}")
             print(f"STDERR: {result.stderr}")
             return False
             
     except Exception as e:
-        print(f"Error in server-based PLM_Sol: {e}")
+        print(f"Error in direct PLM_Sol inference: {e}")
         return False
 
 def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
