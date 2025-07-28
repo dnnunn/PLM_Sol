@@ -29,17 +29,72 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
     Uses direct PLM_Sol inference with server embeddings.
     """
     try:
-        # Use the working direct inference approach with server embeddings
+        # Use the existing inference.py script with server embeddings support
+        # Create a minimal config file for inference
+        import tempfile
+        import yaml
+        
+        # Create temporary config file
+        config_data = {
+            'checkpoint': model_checkpoint,
+            'embeddings': fasta_file,  # Will be overridden by server embeddings
+            'remapping': fasta_file,   # Will be overridden by server embeddings
+            'key_format': 'fasta_descriptor',
+            'batch_size': 1,
+            'output_files_name': output_file.replace('.csv', ''),
+            'model_type': 'biLSTM_TextCNN',
+            'model_parameters': {
+                'output_dim': 1,
+                'dropout': 0.25,
+                'kernel_size': 9
+            },
+            'optimizer': 'Adam',
+            'optimizer_parameters': {'lr': 1.0e-4},
+            'embedding_mode': 'lm',
+            'checkpoints_list': [model_checkpoint]
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            config_file = f.name
+            yaml.dump(config_data, f)
+        
+        # Create Python script to call inference with server embeddings
+        script_content = f'''
+import sys
+sys.path.append('/home/david_nunn/PLM_Sol')
+from inference import inference, parse_arguments
+import json
+import argparse
+
+# Load server embeddings
+with open('{embeddings_file}', 'r') as f:
+    embeddings_data = json.load(f)
+server_embeddings = embeddings_data['embeddings']
+
+# Create args from config
+class Args:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+config = {config_data}
+args = Args(**config)
+
+# Run inference with server embeddings
+results = inference(args, server_embeddings=server_embeddings)
+print(f"Inference completed, results saved to {{args.output_files_name}}.csv")
+'''
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            script_file = f.name
+            f.write(script_content)
+        
         cmd = [
             'conda', 'run', '-n', 'PLM_Sol',
-            'python', '/home/david_nunn/PLM_Sol/plmsol_direct_inference.py',
-            '--fasta', fasta_file,
-            '--output', output_file,
-            '--embeddings_file', embeddings_file,
-            '--model_checkpoint', model_checkpoint
+            'python', script_file
         ]
         
-        print(f"Running direct PLM_Sol inference with server embeddings: {' '.join(cmd)}")
+        print(f"Running PLM_Sol inference with server embeddings via temporary script")
         
         result = subprocess.run(
             cmd,
