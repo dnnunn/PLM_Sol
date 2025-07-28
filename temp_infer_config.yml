@@ -1,9 +1,0 @@
-global:
-  sequences_file: /home/david_nunn/solubility_data_screening/test_sequences.fasta
-  prefix: temp_plmsol
-  key_format: fasta_descriptor
-
-protocol:
-  - predictor: solubility_prediction
-    model_file: /home/david_nunn/PLM_Sol/model/solubility_model.pkl
-    output_files_name: predictions
