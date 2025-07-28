@@ -9,18 +9,41 @@ import yaml
 import torch.nn as nn
 from torchvision.transforms import transforms
 from datasets.embeddings_dataset import Embeddings_predict_Dataset
+from datasets.server_embeddings_dataset import ServerEmbeddings_predict_Dataset
 from datasets.transforms import *
 from solver import Solver
 from models.biLSTM_TextCNN import biLSTM_TextCNN
 
 
-def inference(args):
+def inference(args, server_embeddings=None):
+    """
+    PLM_Sol inference with optional server embeddings support.
+    
+    Args:
+        args: Configuration arguments
+        server_embeddings: Optional list of pre-computed embeddings from server
+                          If provided, skips embedding generation for 10-20x speedup
+    """
     transform = transforms.Compose([Solubility_predict_ToInt(), predict_ToTensor()])
 
-    data_set = Embeddings_predict_Dataset(args.embeddings, args.remapping,
-                                             key_format=args.key_format,
-                                             embedding_mode=args.embedding_mode,
-                                             transform=transform)
+    # Use server embeddings if provided, otherwise load from file
+    if server_embeddings is not None:
+        # Use server-provided embeddings (fast path)
+        data_set = ServerEmbeddings_predict_Dataset(
+            server_embeddings=server_embeddings,
+            remapped_sequences=args.remapping,
+            key_format=args.key_format,
+            embedding_mode=args.embedding_mode,
+            transform=transform
+        )
+    else:
+        # Traditional path: load embeddings from H5 file (slow)
+        data_set = Embeddings_predict_Dataset(
+            args.embeddings, args.remapping,
+            key_format=args.key_format,
+            embedding_mode=args.embedding_mode,
+            transform=transform
+        )
     
     model: nn.Module = globals()[args.model_type](embeddings_dim=data_set[0][0].shape[-1], **args.model_parameters)
 
