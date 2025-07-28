@@ -106,7 +106,32 @@ print(f"Inference completed, results saved to {{args.output_files_name}}.csv")
         
         if result.returncode == 0:
             print(f"Direct PLM_Sol inference completed successfully")
-            return True
+            
+            # Use PROVEN enhanced predictor logic for file validation
+            if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
+                print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
+                return False
+            
+            # Validate CSV format using proven logic
+            try:
+                import pandas as pd
+                results_df = pd.read_csv(output_file)
+                print(f"SUCCESS: PLM_Sol produced {len(results_df)} results")
+                print(f"CSV columns: {list(results_df.columns)}")
+                
+                # Check for required columns (same as enhanced predictor)
+                if 'Accession' not in results_df.columns:
+                    print(f"ERROR: Missing 'Accession' column in output CSV")
+                    return False
+                if 'SolubilityScore' not in results_df.columns:
+                    print(f"ERROR: Missing 'SolubilityScore' column in output CSV")
+                    return False
+                    
+                return True
+                
+            except Exception as csv_error:
+                print(f"ERROR: Failed to parse CSV output: {csv_error}")
+                return False
         else:
             print(f"Direct PLM_Sol inference failed with return code {result.returncode}")
             print(f"STDERR: {result.stderr}")
