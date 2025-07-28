@@ -41,7 +41,7 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             'remapping': fasta_file,   # Will be overridden by server embeddings
             'key_format': 'fasta_descriptor',
             'batch_size': 1,
-            'output_files_name': output_file.replace('.csv', ''),
+            'output_files_name': output_file,
             'model_type': 'biLSTM_TextCNN',
             'model_parameters': {
                 'output_dim': 1,
