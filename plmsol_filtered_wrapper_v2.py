@@ -40,43 +40,22 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         
         print(f"Loaded {len(server_embeddings)} server embeddings")
         
-        # Create temporary config for inference.py (same format as enhanced predictor)
-        # inference.py expects just the base filename, not full path
-        output_base = os.path.splitext(os.path.basename(output_file))[0]
+        # Use PROVEN wrapper approach (same as enhanced predictor)
+        # No config file needed - wrapper handles everything internally
         
-        config_data = {
-            'checkpoint': model_checkpoint,
-            'embeddings': fasta_file,  # Will be overridden by server embeddings
-            'remapping': fasta_file,   # Will be overridden by server embeddings  
-            'key_format': 'fasta_descriptor',
-            'batch_size': 1,
-            'output_files_name': output_base,  # Just base filename, inference.py adds .csv
-            'model_type': 'biLSTM_TextCNN',
-            'model_parameters': {
-                'output_dim': 1,
-                'dropout': 0.25,
-                'kernel_size': 9
-            },
-            'optimizer': 'Adam',
-            'optimizer_parameters': {'lr': 1.0e-4},
-            'embedding_mode': 'lm'
-        }
-        
-        # Create temporary config file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
-            config_file = f.name
-            yaml.dump(config_data, f)
-        
-        print(f"Created temporary config: {config_file}")
-        
-        # Call inference.py directly (no recursion)
+        # Call the PROVEN working wrapper (same as enhanced predictor)
         cmd = [
             "conda", "run", "-n", "PLM_Sol",
-            "python", "/home/david_nunn/PLM_Sol/inference.py",
-            "--config", config_file
+            "python", "/home/david_nunn/PLM_Sol/plmsol_predict_wrapper.py",
+            "--fasta", fasta_file,
+            "--out", output_file
         ]
         
-        print(f"Running PLM_Sol inference.py directly: {' '.join(cmd)}")
+        # Add model checkpoint if provided
+        if model_checkpoint:
+            cmd.extend(["--model_checkpoint", model_checkpoint])
+        
+        print(f"Running PLM_Sol wrapper (proven approach): {' '.join(cmd)}")
         
         result = subprocess.run(
             cmd,
@@ -86,28 +65,18 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             cwd='/home/david_nunn/PLM_Sol'
         )
         
-        # Clean up temp config
-        os.unlink(config_file)
-        
         if result.returncode != 0:
-            print(f"PLM_Sol inference failed with code {result.returncode}")
+            print(f"PLM_Sol wrapper failed with code {result.returncode}")
             print(f"STDOUT: {result.stdout}")
             print(f"STDERR: {result.stderr}")
             return False
         
-        # Check for output file (inference.py adds .csv extension)
-        expected_output = output_file
-        if not expected_output.endswith('.csv'):
-            expected_output += '.csv'
-            
-        if not os.path.exists(expected_output) or os.path.getsize(expected_output) == 0:
-            print(f"PLM_Sol output file not created or empty: {expected_output}")
+        # PROVEN APPROACH: Wrapper creates output file directly at specified location
+        if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
+            print(f"PLM_Sol output file not created or empty: {output_file}")
             return False
         
-        # Move to expected location if needed
-        if expected_output != output_file:
-            import shutil
-            shutil.move(expected_output, output_file)
+        print(f"PLM_Sol wrapper created output file: {output_file}")
         
         # Validate CSV format
         import pandas as pd
