@@ -61,6 +61,13 @@ def create_inference_config(model_checkpoint, fasta_file, output_file):
         'optimizer_parameters': {
             'lr': 1.0e-4  # Default learning rate
         },
+        # CRITICAL: Add missing embedding_mode (required by inference)
+        'embedding_mode': 'lm',  # Language model embeddings
+        # CRITICAL: Add missing checkpoints_list (required by inference.py)
+        'checkpoints_list': [model_checkpoint],
+        # CRITICAL: Add missing training parameters (may be referenced)
+        'num_epochs': 1,  # Minimal for inference
+        'patience': 1,    # Minimal for inference
         # Additional fields that may be needed
         'experiment_name': 'server_inference',
         'exp_name': 'server_inference'
