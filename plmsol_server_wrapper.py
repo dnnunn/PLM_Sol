@@ -7,7 +7,9 @@ and passes them to the modified PLM_Sol inference function, eliminating the 30s
 startup overhead by skipping embedding generation.
 
 Usage:
-    python plmsol_server_wrapper.py --fasta input.fasta --out output.csv --embeddings_json embeddings.json --model_checkpoint model.t7
+    python plmsol_server_wrapper.py --fasta input.fasta --out output.csv --embeddings_file embeddings.json
+
+Note: Model checkpoint is now hardcoded to /home/david_nunn/PLM_Sol/saved_models/model-10.t7
 """
 
 import os
@@ -133,31 +135,33 @@ def main():
     parser.add_argument('--fasta', required=True, help='Input FASTA file')
     parser.add_argument('--out', required=True, help='Output CSV file')
     parser.add_argument('--embeddings_file', required=True, help='Path to JSON file with server embeddings')
-    parser.add_argument('--model_checkpoint', required=True, help='Path to PLM_Sol model checkpoint')
-    
+
     args = parser.parse_args()
     
+    # Hardcoded model checkpoint path
+    MODEL_CHECKPOINT = '/home/david_nunn/PLM_Sol/saved_models/model-10.t7'
+
     # Validate inputs
     if not os.path.exists(args.fasta):
         print(f"Error: FASTA file not found: {args.fasta}")
         return 1
-    
-    if not os.path.exists(args.model_checkpoint):
-        print(f"Error: Model checkpoint not found: {args.model_checkpoint}")
+
+    if not os.path.exists(MODEL_CHECKPOINT):
+        print(f"Error: Model checkpoint not found: {MODEL_CHECKPOINT}")
         return 1
-    
+
     try:
         # Run PLM_Sol with server embeddings
         output_file = run_plm_sol_with_server_embeddings(
             args.fasta,
             args.embeddings_file,
-            args.model_checkpoint,
+            MODEL_CHECKPOINT,
             args.out
         )
-        
+
         print(f"Success: PLM_Sol predictions saved to {output_file}")
         return 0
-        
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
