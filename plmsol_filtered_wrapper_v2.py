@@ -21,6 +21,45 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 import yaml
 import shutil
+import json
+
+def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file, model_checkpoint):
+    """
+    Run PLM_Sol using server-provided embeddings (FAST PATH).
+    Uses the proven server wrapper approach.
+    """
+    try:
+        # Use the proven server wrapper that we already debugged
+        cmd = [
+            'conda', 'run', '-n', 'PLM_Sol',
+            'python', '/home/david_nunn/PLM_Sol/plmsol_server_wrapper.py',
+            '--fasta', fasta_file,
+            '--out', output_file,
+            '--embeddings_file', embeddings_file,
+            '--model_checkpoint', model_checkpoint
+        ]
+        
+        print(f"Running server-based PLM_Sol: {' '.join(cmd)}")
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,  # 5 minutes max
+            cwd='/home/david_nunn/PLM_Sol'
+        )
+        
+        if result.returncode == 0:
+            print(f"Server-based PLM_Sol completed successfully")
+            return True
+        else:
+            print(f"Server-based PLM_Sol failed with return code {result.returncode}")
+            print(f"STDERR: {result.stderr}")
+            return False
+            
+    except Exception as e:
+        print(f"Error in server-based PLM_Sol: {e}")
+        return False
 
 def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
     """Create a filtered FASTA file excluding sequences longer than max_length."""
@@ -158,6 +197,7 @@ def main():
     parser.add_argument('--max_length', type=int, default=4000, 
                        help='Maximum sequence length to process (default: 4000)')
     parser.add_argument('--model_checkpoint', help='Path to model checkpoint file')
+    parser.add_argument('--server_embeddings_file', help='JSON file with server-provided embeddings (optional)')
     
     args = parser.parse_args()
     
@@ -181,9 +221,16 @@ def main():
             merge_results_with_filtered('', filtered_sequences, args.fasta, args.out)
             return
         
-        # Run PLM_Sol on filtered sequences using the original working wrapper
+        # Run PLM_Sol on filtered sequences using the original working wrapper OR server embeddings
         try:
-            success = run_original_plm_sol_wrapper(filtered_fasta, temp_output, args.model_checkpoint)
+            if args.server_embeddings_file:
+                # Use server embeddings (FAST PATH)
+                print(f"Using server embeddings from: {args.server_embeddings_file}")
+                success = run_plm_sol_with_server_embeddings(filtered_fasta, temp_output, args.server_embeddings_file, args.model_checkpoint)
+            else:
+                # Use traditional approach (SLOW PATH)
+                print("Using traditional PLM_Sol wrapper (no server embeddings)")
+                success = run_original_plm_sol_wrapper(filtered_fasta, temp_output, args.model_checkpoint)
             
             if success and os.path.exists(temp_output):
                 # Merge results with filtered sequences
