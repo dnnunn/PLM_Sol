@@ -41,13 +41,16 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         print(f"Loaded {len(server_embeddings)} server embeddings")
         
         # Create temporary config for inference.py (same format as enhanced predictor)
+        # inference.py expects just the base filename, not full path
+        output_base = os.path.splitext(os.path.basename(output_file))[0]
+        
         config_data = {
             'checkpoint': model_checkpoint,
             'embeddings': fasta_file,  # Will be overridden by server embeddings
             'remapping': fasta_file,   # Will be overridden by server embeddings  
             'key_format': 'fasta_descriptor',
             'batch_size': 1,
-            'output_files_name': output_file.replace('.csv', ''),  # inference.py adds .csv
+            'output_files_name': output_base,  # Just base filename, inference.py adds .csv
             'model_type': 'biLSTM_TextCNN',
             'model_parameters': {
                 'output_dim': 1,
