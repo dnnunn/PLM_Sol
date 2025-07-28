@@ -51,8 +51,8 @@ def inference(args, server_embeddings=None):
     solver = Solver(model, args, globals()[args.optimizer])
     
     # CRITICAL FIX: Save predictions to the expected output file
-    # Use output_files_name from config, or default to protTrans_prediction_result.csv
-    output_filename = getattr(args, 'output_files_name', 'protTrans_prediction_result') + '.csv'
+    # Use the exact output_files_name path provided (already includes .csv extension)
+    output_filename = getattr(args, 'output_files_name', 'protTrans_prediction_result.csv')
     
     return solver.predict_evaluation(data_set, filename=output_filename)
 
