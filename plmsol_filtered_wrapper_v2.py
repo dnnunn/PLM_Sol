@@ -26,22 +26,28 @@ import json
 def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file, model_checkpoint):
     """
     Run PLM_Sol using server-provided embeddings (FAST PATH).
-    Uses direct PLM_Sol inference with server embeddings.
+    Calls inference.py directly to avoid infinite recursion.
     """
     try:
-        # Use the existing inference.py script with server embeddings support
-        # Create a minimal config file for inference
         import tempfile
         import yaml
+        import json
         
-        # Create temporary config file
+        # Load server embeddings
+        with open(embeddings_file, 'r') as f:
+            embeddings_data = json.load(f)
+        server_embeddings = embeddings_data['embeddings']
+        
+        print(f"Loaded {len(server_embeddings)} server embeddings")
+        
+        # Create temporary config for inference.py (same format as enhanced predictor)
         config_data = {
             'checkpoint': model_checkpoint,
             'embeddings': fasta_file,  # Will be overridden by server embeddings
-            'remapping': fasta_file,   # Will be overridden by server embeddings
+            'remapping': fasta_file,   # Will be overridden by server embeddings  
             'key_format': 'fasta_descriptor',
             'batch_size': 1,
-            'output_files_name': output_file,
+            'output_files_name': output_file.replace('.csv', ''),  # inference.py adds .csv
             'model_type': 'biLSTM_TextCNN',
             'model_parameters': {
                 'output_dim': 1,
@@ -50,51 +56,24 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             },
             'optimizer': 'Adam',
             'optimizer_parameters': {'lr': 1.0e-4},
-            'embedding_mode': 'lm',
-            'checkpoints_list': [model_checkpoint]
+            'embedding_mode': 'lm'
         }
         
+        # Create temporary config file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
             config_file = f.name
             yaml.dump(config_data, f)
         
-        # Create Python script to call inference with server embeddings
-        script_content = f'''
-import sys
-sys.path.append('/home/david_nunn/PLM_Sol')
-from inference import inference, parse_arguments
-import json
-import argparse
-
-# Load server embeddings
-with open('{embeddings_file}', 'r') as f:
-    embeddings_data = json.load(f)
-server_embeddings = embeddings_data['embeddings']
-
-# Create args from config
-class Args:
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-config = {config_data}
-args = Args(**config)
-
-# Run inference with server embeddings
-results = inference(args, server_embeddings=server_embeddings)
-print(f"Inference completed, results saved to {{args.output_files_name}}.csv")
-'''
+        print(f"Created temporary config: {config_file}")
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            script_file = f.name
-            f.write(script_content)
-        
+        # Call inference.py directly (no recursion)
         cmd = [
-            'conda', 'run', '-n', 'PLM_Sol',
-            'python', script_file
+            "conda", "run", "-n", "PLM_Sol",
+            "python", "/home/david_nunn/PLM_Sol/inference.py",
+            "--config", config_file
         ]
         
-        print(f"Running PLM_Sol inference with server embeddings via temporary script")
+        print(f"Running PLM_Sol inference.py directly: {' '.join(cmd)}")
         
         result = subprocess.run(
             cmd,
@@ -104,41 +83,41 @@ print(f"Inference completed, results saved to {{args.output_files_name}}.csv")
             cwd='/home/david_nunn/PLM_Sol'
         )
         
-        if result.returncode == 0:
-            print(f"Direct PLM_Sol inference completed successfully")
-            
-            # Use PROVEN enhanced predictor logic for file validation
-            if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-                print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
-                return False
-            
-            # Validate CSV format using proven logic
-            try:
-                import pandas as pd
-                results_df = pd.read_csv(output_file)
-                print(f"SUCCESS: PLM_Sol produced {len(results_df)} results")
-                print(f"CSV columns: {list(results_df.columns)}")
-                
-                # Check for required columns (same as enhanced predictor)
-                if 'Accession' not in results_df.columns:
-                    print(f"ERROR: Missing 'Accession' column in output CSV")
-                    return False
-                if 'SolubilityScore' not in results_df.columns:
-                    print(f"ERROR: Missing 'SolubilityScore' column in output CSV")
-                    return False
-                    
-                return True
-                
-            except Exception as csv_error:
-                print(f"ERROR: Failed to parse CSV output: {csv_error}")
-                return False
-        else:
-            print(f"Direct PLM_Sol inference failed with return code {result.returncode}")
+        # Clean up temp config
+        os.unlink(config_file)
+        
+        if result.returncode != 0:
+            print(f"PLM_Sol inference failed with code {result.returncode}")
+            print(f"STDOUT: {result.stdout}")
             print(f"STDERR: {result.stderr}")
             return False
+        
+        # Check for output file (inference.py adds .csv extension)
+        expected_output = output_file
+        if not expected_output.endswith('.csv'):
+            expected_output += '.csv'
+            
+        if not os.path.exists(expected_output) or os.path.getsize(expected_output) == 0:
+            print(f"PLM_Sol output file not created or empty: {expected_output}")
+            return False
+        
+        # Move to expected location if needed
+        if expected_output != output_file:
+            import shutil
+            shutil.move(expected_output, output_file)
+        
+        # Validate CSV format
+        import pandas as pd
+        results_df = pd.read_csv(output_file)
+        print(f"PLM_Sol produced {len(results_df)} results")
+        print(f"CSV columns: {list(results_df.columns)}")
+        
+        return True
             
     except Exception as e:
-        print(f"Error in direct PLM_Sol inference: {e}")
+        print(f"Error running PLM_Sol with server embeddings: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
