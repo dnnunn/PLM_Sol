@@ -64,13 +64,13 @@ def create_inference_config(model_checkpoint, remapping_file, output_file):
     return Args(**config)
 
 
-def run_plm_sol_with_server_embeddings(fasta_file, embeddings_json, model_checkpoint, output_file):
+def run_plm_sol_with_server_embeddings(fasta_file, embeddings_file, model_checkpoint, output_file):
     """
     Run PLM_Sol inference using server-provided embeddings.
     
     Args:
         fasta_file: Path to input FASTA file
-        embeddings_json: JSON string with embeddings from server
+        embeddings_file: Path to JSON file with embeddings from server
         model_checkpoint: Path to PLM_Sol model checkpoint
         output_file: Path for output CSV file
         
@@ -78,13 +78,14 @@ def run_plm_sol_with_server_embeddings(fasta_file, embeddings_json, model_checkp
         Path to output CSV file
     """
     
-    # Parse embeddings from JSON
+    # Parse embeddings from file
     try:
-        embeddings_data = json.loads(embeddings_json)
+        with open(embeddings_file, 'r') as f:
+            embeddings_data = json.load(f)
         server_embeddings = embeddings_data['embeddings']
-        print(f"Loaded {len(server_embeddings)} embeddings from server")
+        print(f"Loaded {len(server_embeddings)} embeddings from file: {embeddings_file}")
     except Exception as e:
-        raise ValueError(f"Failed to parse embeddings JSON: {e}")
+        raise ValueError(f"Failed to parse embeddings file {embeddings_file}: {e}")
     
     # Create inference configuration
     args = create_inference_config(model_checkpoint, fasta_file, output_file)
@@ -114,7 +115,7 @@ def main():
     parser = argparse.ArgumentParser(description='PLM_Sol Server Wrapper')
     parser.add_argument('--fasta', required=True, help='Input FASTA file')
     parser.add_argument('--out', required=True, help='Output CSV file')
-    parser.add_argument('--embeddings_json', required=True, help='JSON string with server embeddings')
+    parser.add_argument('--embeddings_file', required=True, help='Path to JSON file with server embeddings')
     parser.add_argument('--model_checkpoint', required=True, help='Path to PLM_Sol model checkpoint')
     
     args = parser.parse_args()
@@ -132,7 +133,7 @@ def main():
         # Run PLM_Sol with server embeddings
         output_file = run_plm_sol_with_server_embeddings(
             args.fasta,
-            args.embeddings_json,
+            args.embeddings_file,
             args.model_checkpoint,
             args.out
         )
