@@ -119,7 +119,7 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     
     # CRITICAL: Use the exact config format that worked before
     config = {
-        'output_files_name': 'protTrans_prediction_result',  # This controls the output filename
+        'output_files_name': 'solubility_predictor_results.csv',  # NEW: Updated output filename for diagnostics
         'log_iterations': 100,
         'n_draws': 1000,
         'batch_size': 1,
@@ -163,8 +163,8 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     if result.returncode != 0:
         raise RuntimeError(f"Inference failed with code {result.returncode}: {result.stderr}")
     
-    # Return the path to the hardcoded output file (from memories)
-    prediction_file = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
+    # Return the path to the new output file
+    prediction_file = os.path.join(plmsol_root, 'solubility_predictor_results.csv')
     
     if not os.path.exists(prediction_file):
         print(f"ERROR: Expected output file not found: {prediction_file}")
@@ -375,10 +375,14 @@ def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None):
         
         # CRITICAL FIX: Clean up stale output files before starting
         plmsol_root = os.path.dirname(os.path.abspath(__file__))
-        stale_output_file = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
-        if os.path.exists(stale_output_file):
-            print(f"DEBUG: Removing stale output file: {stale_output_file}")
-            os.remove(stale_output_file)
+        stale_files_to_remove = [
+            os.path.join(plmsol_root, 'protTrans_prediction_result.csv'),
+            os.path.join(plmsol_root, 'solubility_predictor_results.csv')
+        ]
+        for stale_output_file in stale_files_to_remove:
+            if os.path.exists(stale_output_file):
+                print(f"DEBUG: Removing stale output file: {stale_output_file}")
+                os.remove(stale_output_file)
         
         # Also clean up any other potential stale files
         stale_patterns = ['test_inference*.csv', '*prediction_result*.csv']
