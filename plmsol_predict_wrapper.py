@@ -132,6 +132,7 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
     
+    print(f"DEBUG: Inference config written to: {config_path}")
     print(f"DEBUG: Created inference config at {config_path}")
     print(f"DEBUG: Config contents: {config}")
     
