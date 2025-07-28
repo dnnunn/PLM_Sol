@@ -30,17 +30,12 @@ class ServerEmbeddings_predict_Dataset(Dataset):
                  max_length: int = float('inf'),
                  embedding_mode: str = 'lm',
                  transform=lambda x: x) -> None:
-        """
-        Initialize dataset with server-provided embeddings.
-        
-        Args:
-            server_embeddings: List of embeddings from the persistent embedding server
-            remapped_sequences: Path to remapped FASTA file with sequence metadata
-            key_format: Format of keys in the FASTA file
-            max_length: Maximum sequence length to include
-            embedding_mode: Type of embeddings ('lm' for language model)
-            transform: Transform to apply to embeddings
-        """
+        print(f"[DEBUG] Initializing ServerEmbeddings_predict_Dataset")
+        print(f"[DEBUG] Number of server embeddings loaded: {len(server_embeddings)}")
+        # Parse remapped_sequences FASTA and count
+        fasta_records = list(SeqIO.parse(open(remapped_sequences), 'fasta'))
+        print(f"[DEBUG] Number of sequences in remapped FASTA: {len(fasta_records)}")
+        print(f"[DEBUG] First 3 remapped FASTA IDs: {[rec.id for rec in fasta_records[:3]]}")
         super().__init__()
         self.transform = transform
         self.embedding_mode = embedding_mode

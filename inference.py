@@ -16,6 +16,7 @@ from models.biLSTM_TextCNN import biLSTM_TextCNN
 
 
 def inference(args, server_embeddings=None):
+    print(f"[DEBUG] Entered inference. Using server_embeddings: {server_embeddings is not None}")
     """
     PLM_Sol inference with optional server embeddings support.
     
