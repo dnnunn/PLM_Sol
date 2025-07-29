@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 """
-PLM_Sol Filtered Wrapper v2 - Based on Working Original
--------------------------------------------------------
+PLM_Sol Filtered Wrapper v2 - **PRODUCTION ENTRYPOINT**
+------------------------------------------------------
 
-This wrapper adds sequence length filtering to the proven working PLM_Sol wrapper
-to avoid CUDA OOM errors while maintaining row alignment.
+**This is the main production wrapper for PLM_Sol batch/parallel inference.**
+- Supports server-side embeddings for fast inference (use --server_embeddings_file argument)
+- Handles sequence length filtering to avoid CUDA OOM errors
+- Maintains row alignment and output format for downstream workflows
 
-Usage:
+**All other wrappers (predict, server, end-to-end, direct) are legacy or for troubleshooting only.**
+
+Usage (production):
+  python plmsol_filtered_wrapper_v2.py --fasta <input_fasta> --out <output_csv> --model_checkpoint <model.t7> --server_embeddings_file <embeddings.json>
+
+Legacy usage (not recommended):
   python plmsol_filtered_wrapper_v2.py --fasta <input_fasta> --out <output_csv> [--max_length 4000]
+
+See PLM_Sol_Script_Reference.md for full workflow and script map.
 """
 import argparse
 import os
