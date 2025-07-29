@@ -27,7 +27,7 @@ def main():
 
     print(f"[1/2] Running PLM_Sol direct inference (includes embedding generation)...")
     result = subprocess.run([
-        sys.executable, os.path.join(os.path.dirname(__file__), 'predict.py'),
+        sys.executable, os.path.join(os.path.dirname(__file__), 'plmsol_predict_wrapper.py'),
         '--fasta', fasta_path,
         '--out', out_path,
         '--model_checkpoint', MODEL_CHECKPOINT
