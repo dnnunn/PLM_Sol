@@ -1,35 +1,38 @@
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
+
+# System files
 .DS_Store
 Thumbs.db
 .ipynb_checkpoints
 .AppleDouble
 .LSOverride
-,fasta
+
+# Output and model directories
 outputs/
 saved_models/
-fasta_files/clean_sequences_emb
+
+# FASTA and embedding files (ignore all, then allow .yml configs if needed)
+fasta_files/clean_sequences_emb/
 fasta_files/embedding_clean_benchmark.yml
 fasta_files/eval_clean_benchmark.yml
 fasta_files/embedding_clean_sequences.yml
 fasta_files/embedding_clean_sequences_emb.yml
 fasta_files/eval_clean_sequences.yml
 fasta_files/eval_clean_sequences_emb.yml
-fasta_files/embedding_clean_sequences_emb/remapped_sequences_file.fasta
-fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
-fasta_files/embedding_clean_sequences_emb/remapped_sequences_file.fasta
-fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
-fasta_files/embedding_clean_sequences_emb/remapped_sequences_file.fasta
-fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
-fasta_files/embedding_clean_sequences_emb/remapped_sequences_file.fasta
-fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
-fasta_files/embedding_clean_sequences_emb/remapped_sequences_file.fasta
-fasta_files/embedding_clean_sequences_emb/embeddings_file.h5
-<<<<<<< HEAD
-.h5
-=======
-.h5
->>>>>>> 1031a1dab75c46798060c2c4894225a3c43a72c7
+
+# Ignore all .h5 and .json files (large files)
+*.h5
+*.json
+
+# Specific large files
+fasta_files/clean_sequences_emb/t5_embeddings/embeddings_file.h5
+solubility_predictor_results_embeddings.json
+
+# Java artifacts
 *.jar
+
+# Fine-tuning mapping files
 fine_tuning_embeddings/high_rk/train_emb/mapping_file.csv
