@@ -1,9 +1,0 @@
-# Evaluation config for combined model on high_wyfl training set
-exp_name: eval_combined_on_high_wyfl_train
-model: biLSTM_TextCNN
-key_format: fasta_descriptor
-# These values can be overridden by CLI
-train_embeddings: fine_tuning_embeddings/high_wyfl/train_emb/train_emb/t5_embeddings/embeddings_file.h5
-train_remapping: fine_tuning_embeddings/high_wyfl/train_emb/train_emb/remapped_sequences_file.fasta
-test_embeddings: fine_tuning_embeddings/high_wyfl/merged_eval/embeddings_file.h5
-test_remapping: fine_tuning_embeddings/high_wyfl/merged_eval/remapped_sequences_file.fasta

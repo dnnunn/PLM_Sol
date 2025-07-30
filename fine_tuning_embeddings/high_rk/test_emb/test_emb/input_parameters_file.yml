@@ -1,8 +1,0 @@
-global:
-  sequences_file: fine_tuning_datasets/high_rk/test.fasta
-  prefix: fine_tuning_embeddings/high_rk/test_emb/test_emb
-t5_embeddings:
-  type: embed
-  protocol: prottrans_t5_xl_u50
-  half_precision_model: true
-  half_precision: true

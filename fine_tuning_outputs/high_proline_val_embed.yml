@@ -1,9 +1,0 @@
-global:
-  sequences_file: fine_tuning_datasets/high_proline/val.fixed.fasta
-  prefix: fine_tuning_embeddings/high_proline/val_emb/val_emb
-
-t5_embeddings:
-  type: embed
-  protocol: prottrans_t5_xl_u50
-  half_precision_model: True
-  half_precision: True
