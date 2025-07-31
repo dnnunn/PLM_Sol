@@ -41,6 +41,7 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         import tempfile
         import yaml
         import json
+        import os
         
         # Load server embeddings
         with open(embeddings_file, 'r') as f:
