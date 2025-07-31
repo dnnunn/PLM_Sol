@@ -174,7 +174,6 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     # Save final results
     final_df = pd.DataFrame(final_results)
     final_df.to_csv(output_file, index=False)
-    import os
     # Debug: check file existence and size
     if os.path.exists(output_file):
         size = os.path.getsize(output_file)
