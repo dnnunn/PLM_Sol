@@ -53,7 +53,7 @@ def inference(args, server_embeddings=None):
     
     # CRITICAL FIX: Save predictions to the expected output file
     # Use the exact output_files_name path provided (already includes .csv extension)
-    output_filename = getattr(args, 'output_files_name', 'protTrans_prediction_result.csv')
+    output_filename = getattr(args, 'output_files_name', 'solubility_predictor_results.csv')
     
     return solver.predict_evaluation(data_set, filename=output_filename)
 

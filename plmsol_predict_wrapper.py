@@ -226,7 +226,7 @@ def run_inference(embeddings_file, remapped_sequences_file, tmpdir, model_checkp
             return None
         
         # CRITICAL: PLM_Sol hardcodes the output file name in the root directory
-        hardcoded_output = os.path.join(plmsol_root, 'protTrans_prediction_result.csv')
+        hardcoded_output = os.path.join(plmsol_root, 'solubility_predictor_results.csv')
         if os.path.exists(hardcoded_output):
             print(f"Found hardcoded output file at {hardcoded_output}")
             # If a unique output path is given, move the file there
@@ -442,7 +442,7 @@ def run_pipeline(fasta_path, output_path, tmpdir, model_checkpoint=None, unique_
         # CRITICAL FIX: Clean up stale output files before starting
         plmsol_root = os.path.dirname(os.path.abspath(__file__))
         stale_files_to_remove = [
-            os.path.join(plmsol_root, 'protTrans_prediction_result.csv'),
+            os.path.join(plmsol_root, 'solubility_predictor_results.csv'),
             os.path.join(plmsol_root, 'solubility_predictor_results.csv')
         ]
         for stale_output_file in stale_files_to_remove:
