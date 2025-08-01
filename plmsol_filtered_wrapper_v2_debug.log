@@ -542,3 +542,168 @@ ERROR conda.cli.main_run:execute(127): `conda run python /home/david_nunn/PLM_So
 
 2025-08-01 20:51:34,034 ERROR [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmpj62isf5_/temp_plm_results.csv does not exist after inference.py
 2025-08-01 20:51:34,050 ERROR [plmsol_filtered_wrapper_v2]: Exception reading or validating output CSV: [Errno 2] No such file or directory: '/var/tmp/tmpj62isf5_/temp_plm_results.csv'
+2025-08-01 20:55:23,136 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:55:23,136 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:55:23,136 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:55:23,136 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpuv7cn0vj.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpxnxhdrml.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:55:23,143 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpxnxhdrml.json
+2025-08-01 20:55:24,437 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:55:26,554 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.5269925594329834, -0.20082587003707886, 0.17697323858737946, 0.430246502161026, 0.4422651529312134, -0.1858566701412201, -0.032375678420066833, -0.28494369983673096, 0.005770681891590357, 0.23954322934150696, -0.09207537770271301, 0.26227569580078125, 0.2525213062763214, -0.05393032729625702, 
+2025-08-01 20:55:26,554 INFO [plmsol_filtered_wrapper_v2]: Loaded 10 server embeddings
+2025-08-01 20:55:26,555 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:26,555 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:26,556 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpf8a_7ukk.yml
+2025-08-01 20:55:26,557 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmp_k7wdmzd/temp_plm_results.csv
+remapping: /var/tmp/tmp_b5wa2wz.fasta
+
+2025-08-01 20:55:26,557 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmp_b5wa2wz.fasta
+2025-08-01 20:55:26,557 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpf8a_7ukk.yml
+2025-08-01 20:55:26,557 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-01 20:55:30,990 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 1
+2025-08-01 20:55:30,990 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: False
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmpf8a_7ukk.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', output_files_name='/var/tmp/tmp_k7wdmzd/temp_plm_results.csv', remapping='/var/tmp/tmp_b5wa2wz.fasta')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmpf8a_7ukk.yml' mode='r' encoding='UTF-8'>
+[DEBUG] Output file will be: /var/tmp/tmp_k7wdmzd/temp_plm_results.csv
+
+
+2025-08-01 20:55:30,990 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+Traceback (most recent call last):
+  File "/home/david_nunn/PLM_Sol/inference.py", line 120, in <module>
+    inference(original_args)
+  File "/home/david_nunn/PLM_Sol/inference.py", line 51, in inference
+    data_set = Embeddings_predict_Dataset(
+  File "/home/david_nunn/PLM_Sol/datasets/embeddings_dataset.py", line 116, in __init__
+    self.embeddings_file = h5py.File(embeddings_path, 'r')
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 562, in __init__
+    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 235, in make_fid
+    fid = h5f.open(name, flags, fapl=fapl)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 102, in h5py.h5f.open
+FileNotFoundError: [Errno 2] Unable to open file (unable to o
+2025-08-01 20:55:30,990 ERROR [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmp_k7wdmzd/temp_plm_results.csv does not exist after inference.py
+2025-08-01 20:55:30,991 ERROR [plmsol_filtered_wrapper_v2]: Exception reading or validating output CSV: [Errno 2] No such file or directory: '/var/tmp/tmp_k7wdmzd/temp_plm_results.csv'
+2025-08-01 20:55:35,677 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:55:35,677 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:55:35,677 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:55:35,677 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmp1n0g_vs9.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmp71nxpp5c.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:55:35,683 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmp71nxpp5c.json
+2025-08-01 20:55:35,946 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:55:36,385 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.6054930090904236, -0.05262818560004234, 0.15377900004386902, 0.3836035132408142, 0.23132403194904327, -0.041049208492040634, -0.1384870707988739, -0.2942684590816498, -0.06541300565004349, 0.2571764290332794, -0.04059071093797684, 0.208616703748703, 0.1447533816099167, -0.020283568650484085, 0
+2025-08-01 20:55:36,385 INFO [plmsol_filtered_wrapper_v2]: Loaded 2 server embeddings
+2025-08-01 20:55:36,386 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:36,386 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:36,387 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpx2pg1od5.yml
+2025-08-01 20:55:36,388 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpwi6gv4vl/temp_plm_results.csv
+remapping: /var/tmp/tmpz2u_bnqn.fasta
+
+2025-08-01 20:55:36,388 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpz2u_bnqn.fasta
+2025-08-01 20:55:36,388 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpx2pg1od5.yml
+2025-08-01 20:55:36,388 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-01 20:55:40,766 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 1
+2025-08-01 20:55:40,766 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: False
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmpx2pg1od5.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', output_files_name='/var/tmp/tmpwi6gv4vl/temp_plm_results.csv', remapping='/var/tmp/tmpz2u_bnqn.fasta')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmpx2pg1od5.yml' mode='r' encoding='UTF-8'>
+[DEBUG] Output file will be: /var/tmp/tmpwi6gv4vl/temp_plm_results.csv
+
+
+2025-08-01 20:55:40,766 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+Traceback (most recent call last):
+  File "/home/david_nunn/PLM_Sol/inference.py", line 120, in <module>
+    inference(original_args)
+  File "/home/david_nunn/PLM_Sol/inference.py", line 51, in inference
+    data_set = Embeddings_predict_Dataset(
+  File "/home/david_nunn/PLM_Sol/datasets/embeddings_dataset.py", line 116, in __init__
+    self.embeddings_file = h5py.File(embeddings_path, 'r')
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 562, in __init__
+    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 235, in make_fid
+    fid = h5f.open(name, flags, fapl=fapl)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 102, in h5py.h5f.open
+FileNotFoundError: [Errno 2] Unable to open file (unable to o
+2025-08-01 20:55:40,766 ERROR [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmpwi6gv4vl/temp_plm_results.csv does not exist after inference.py
+2025-08-01 20:55:40,771 ERROR [plmsol_filtered_wrapper_v2]: Exception reading or validating output CSV: [Errno 2] No such file or directory: '/var/tmp/tmpwi6gv4vl/temp_plm_results.csv'
+2025-08-01 20:55:45,371 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:55:45,371 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:55:45,371 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:55:45,372 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpyjygwhjr.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpln44wiht.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:55:45,378 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpln44wiht.json
+2025-08-01 20:55:45,640 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:55:46,083 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.40196138620376587, -0.2340596318244934, 0.1383860856294632, 0.4118143916130066, 0.16527780890464783, -0.09194741398096085, -0.250278502702713, -0.21924692392349243, -0.10682474821805954, 0.03948534280061722, -0.005117225926369429, 0.11724187433719635, -0.08445551246404648, 0.04755835980176926,
+2025-08-01 20:55:46,083 INFO [plmsol_filtered_wrapper_v2]: Loaded 2 server embeddings
+2025-08-01 20:55:46,083 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:46,084 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:55:46,085 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpei_gihzj.yml
+2025-08-01 20:55:46,085 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpa5szlvlt/temp_plm_results.csv
+remapping: /var/tmp/tmpy98t6szg.fasta
+
+2025-08-01 20:55:46,086 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpy98t6szg.fasta
+2025-08-01 20:55:46,086 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpei_gihzj.yml
+2025-08-01 20:55:46,086 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-01 20:55:50,356 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 1
+2025-08-01 20:55:50,356 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: False
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmpei_gihzj.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', output_files_name='/var/tmp/tmpa5szlvlt/temp_plm_results.csv', remapping='/var/tmp/tmpy98t6szg.fasta')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmpei_gihzj.yml' mode='r' encoding='UTF-8'>
+[DEBUG] Output file will be: /var/tmp/tmpa5szlvlt/temp_plm_results.csv
+
+
+2025-08-01 20:55:50,356 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+Traceback (most recent call last):
+  File "/home/david_nunn/PLM_Sol/inference.py", line 120, in <module>
+    inference(original_args)
+  File "/home/david_nunn/PLM_Sol/inference.py", line 51, in inference
+    data_set = Embeddings_predict_Dataset(
+  File "/home/david_nunn/PLM_Sol/datasets/embeddings_dataset.py", line 116, in __init__
+    self.embeddings_file = h5py.File(embeddings_path, 'r')
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 562, in __init__
+    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
+  File "/home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/h5py/_hl/files.py", line 235, in make_fid
+    fid = h5f.open(name, flags, fapl=fapl)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 102, in h5py.h5f.open
+FileNotFoundError: [Errno 2] Unable to open file (unable to o
+2025-08-01 20:55:50,356 ERROR [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmpa5szlvlt/temp_plm_results.csv does not exist after inference.py
+2025-08-01 20:55:50,361 ERROR [plmsol_filtered_wrapper_v2]: Exception reading or validating output CSV: [Errno 2] No such file or directory: '/var/tmp/tmpa5szlvlt/temp_plm_results.csv'
