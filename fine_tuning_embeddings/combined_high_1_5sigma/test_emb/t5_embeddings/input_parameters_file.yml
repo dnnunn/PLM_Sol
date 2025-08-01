@@ -11,5 +11,5 @@ sequences_file:
   /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/test_emb/sequences_file.fasta
 simple_remapping: false
 stage_name: t5_embeddings
-start_time: '2025-07-24 23:38:07.739921+00:00'
+start_time: '2025-08-01 11:42:06.505367+00:00'
 type: embed

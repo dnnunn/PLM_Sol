@@ -1,0 +1,25 @@
+batch_size: 64
+checkpoint: null
+eval_on_test: true
+exp_name: finetune_combined_high_1_5sigma_20250801_114226
+experiment_name: PLM_Sol_FineTuning_combined_high_1_5sigma
+key_format: fasta_descriptor
+log_iterations: 10
+model_parameters:
+  dropout: 0.25
+  hidden_dim: 32
+  n_hidden_layers: 0
+  output_dim: 1
+model_type: FFN
+num_epochs: 50
+optimizer_parameters:
+  lr: 0.0001
+patience: 10
+target: sol
+test_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/test_emb/t5_embeddings/embeddings_file.h5
+test_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/test_emb/remapped_sequences_file.fasta
+train_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/t5_embeddings/embeddings_file.h5
+train_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/train_emb/remapped_sequences_file.fasta
+unknown_solubility: false
+val_embeddings: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/t5_embeddings/embeddings_file.h5
+val_remapping: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/remapped_sequences_file.fasta
