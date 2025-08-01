@@ -13,15 +13,15 @@ t5_embeddings:
   protocol: prottrans_t5_xl_u50
   type: embed
   stage_name: t5_embeddings
-  start_time: '2025-08-01 11:41:35.868517+00:00'
+  start_time: '2025-08-01 12:28:11.965515+00:00'
   max_amino_acids: 5000
   embeddings_transformer_function:
   discard_per_amino_acid_embeddings: false
   embeddings_file: 
     /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb/t5_embeddings/embeddings_file.h5
   reduce: false
-  end_time: '2025-08-01 11:41:54.852785+00:00'
-  elapsed_time: 0:00:18.984268
+  end_time: '2025-08-01 12:28:31.318623+00:00'
+  elapsed_time: 0:00:19.353108
 global:
   prefix: /home/david_nunn/PLM_Sol/fine_tuning_embeddings/combined_high_1_5sigma/val_emb
   sequences_file: 

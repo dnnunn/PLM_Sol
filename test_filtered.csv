@@ -1,2 +1,2 @@
 Accession,Sequence,Predictor,SolubilityScore,Probability_Soluble,Probability_Insoluble
-test_seq,MVPPWPIPPYPIPPWRPVPP,PLM_Sol,0.9956772,0.9956772,0.00432279999999996
+test_seq,MVPPWPIPPYPIPPWRPVPP,PLM_Sol,0.9956772,0.9956772,0.0043227999999999

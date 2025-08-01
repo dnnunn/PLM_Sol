@@ -1,0 +1,7 @@
+combined_high_1_5sigma:
+  evaluation:
+    final_test_accuracy: 'Test 49, loss: 0.556017, test acc: 0.757812, test avg acc:
+      0.745495'
+    training_log: /home/david_nunn/PLM_Sol/outputs/finetune_combined_high_1_5sigma_20250801_122903/run.log
+  experiment_name: finetune_combined_high_1_5sigma_20250801_122903
+  status: completed
