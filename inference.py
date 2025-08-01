@@ -112,19 +112,25 @@ def parse_arguments():
 if __name__ == '__main__':
     original_args = copy.copy(parse_arguments())
     
-    for checkpoint in original_args.checkpoints_list:
-        args = copy.copy(original_args)
-        arg_dict = args.__dict__
-        arg_dict['checkpoint'] = checkpoint
-        # get the arguments from the yaml config file that is saved in the runs checkpoint
-        data = yaml.load(open(os.path.join('./model_param/train_arguments.yml'), 'r'), Loader=yaml.FullLoader)
-        for key, value in data.items():
-            if key not in args.__dict__.keys():
-                if isinstance(value, list):
-                    for v in value:
-                        arg_dict[key].append(v)
-                else:
-                    arg_dict[key] = value
-        # call teh actual inference
-        inference(args)
+    # CRITICAL FIX: If no checkpoints_list provided, run inference directly with config args
+    if not original_args.checkpoints_list:
+        print(f"[DEBUG] No checkpoints_list provided, running inference with config args directly")
+        inference(original_args)
+    else:
+        # Original logic for multiple checkpoints
+        for checkpoint in original_args.checkpoints_list:
+            args = copy.copy(original_args)
+            arg_dict = args.__dict__
+            arg_dict['checkpoint'] = checkpoint
+            # get the arguments from the yaml config file that is saved in the runs checkpoint
+            data = yaml.load(open(os.path.join('./model_param/train_arguments.yml'), 'r'), Loader=yaml.FullLoader)
+            for key, value in data.items():
+                if key not in args.__dict__.keys():
+                    if isinstance(value, list):
+                        for v in value:
+                            arg_dict[key].append(v)
+                    else:
+                        arg_dict[key] = value
+            # call teh actual inference
+            inference(args)
    
