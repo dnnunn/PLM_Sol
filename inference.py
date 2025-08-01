@@ -17,6 +17,15 @@ from models.biLSTM_TextCNN import biLSTM_TextCNN
 
 def inference(args, server_embeddings=None):
     print(f"[DEBUG] Entered inference. Using server_embeddings: {server_embeddings is not None}")
+    print(f"[DEBUG] Args: {args}")
+    try:
+        # Log config file if present
+        if hasattr(args, 'config') and getattr(args, 'config', None):
+            print(f"[DEBUG] Config file: {getattr(args, 'config', None)}")
+        if hasattr(args, 'output_files_name'):
+            print(f"[DEBUG] Output file will be: {args.output_files_name}")
+    except Exception as e:
+        print(f"[DEBUG] Exception printing args/config: {e}")
     """
     PLM_Sol inference with optional server embeddings support.
     
@@ -54,8 +63,20 @@ def inference(args, server_embeddings=None):
     # CRITICAL FIX: Save predictions to the expected output file
     # Use the exact output_files_name path provided (already includes .csv extension)
     output_filename = getattr(args, 'output_files_name', 'solubility_predictor_results.csv')
-    
-    return solver.predict_evaluation(data_set, filename=output_filename)
+    print(f"[DEBUG] About to call solver.predict_evaluation with output_filename: {output_filename}")
+    try:
+        result = solver.predict_evaluation(data_set, filename=output_filename)
+        print(f"[DEBUG] solver.predict_evaluation returned. Checking output file: {output_filename}")
+        if os.path.exists(output_filename):
+            print(f"[DEBUG] Output file {output_filename} exists. Size: {os.path.getsize(output_filename)} bytes")
+        else:
+            print(f"[DEBUG] Output file {output_filename} does NOT exist after prediction!")
+        return result
+    except Exception as e:
+        print(f"[DEBUG] Exception in solver.predict_evaluation: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def parse_arguments():
