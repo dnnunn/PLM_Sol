@@ -162,6 +162,9 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
                 if 'protein_ID' in df.columns and 'predict_result' in df.columns:
                     df = df.rename(columns={'protein_ID': 'Accession', 'predict_result': 'SolubilityScore'})
                     logging.info(f'Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore')
+                    # Save the renamed DataFrame back to the temp file
+                    df.to_csv(output_file, index=False)
+                    logging.info(f'Saved renamed columns to temp file: {output_file}')
                 
                 # Validate required columns
                 if 'Accession' not in df.columns or 'SolubilityScore' not in df.columns:
@@ -220,8 +223,13 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     results_dict = {}
     if os.path.exists(plm_sol_results):
         results_df = pd.read_csv(plm_sol_results)
+        print(f"[DEBUG] Merge reading temp results with columns: {list(results_df.columns)}")
+        print(f"[DEBUG] Temp results head:\n{results_df.head()}")
+        
         for _, row in results_df.iterrows():
             results_dict[row['Accession']] = row
+            
+        print(f"[DEBUG] Loaded {len(results_dict)} results into merge dictionary")
     
     # Build final results maintaining original order
     final_results = []
