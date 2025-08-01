@@ -35,7 +35,7 @@ import json
 def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file, model_checkpoint):
     """
     Run PLM_Sol using server-provided embeddings (FAST PATH).
-    Calls inference.py directly to avoid infinite recursion.
+    Calls inference.py directly with pre-computed embeddings.
     """
     try:
         import tempfile
@@ -45,55 +45,109 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         # Load server embeddings
         with open(embeddings_file, 'r') as f:
             embeddings_data = json.load(f)
-        server_embeddings = embeddings_data['embeddings']
+        
+        # Handle different embedding data formats
+        if 'embeddings' in embeddings_data:
+            server_embeddings = embeddings_data['embeddings']
+        elif isinstance(embeddings_data, list):
+            server_embeddings = embeddings_data
+        else:
+            print(f"ERROR: Invalid embeddings format in {embeddings_file}")
+            return False
         
         print(f"Loaded {len(server_embeddings)} server embeddings")
         
-        # Use PROVEN wrapper approach (same as enhanced predictor)
-        # No config file needed - wrapper handles everything internally
+        # Create remapping file for sequence IDs
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as remap_file:
+            remap_path = remap_file.name
+            for i, record in enumerate(SeqIO.parse(fasta_file, 'fasta')):
+                remap_file.write(f">{record.id}\n{str(record.seq)}\n")
         
-        # Call the PROVEN working wrapper (same as enhanced predictor)
-        cmd = [
-            "conda", "run", "-n", "PLM_Sol",
-            "python", "/home/david_nunn/PLM_Sol/plmsol_predict_wrapper.py",
-            "--fasta", fasta_file,
-            "--out", output_file
-        ]
+        # Create inference config
+        config_data = {
+            'model_type': 'biLSTM_TextCNN',
+            'model_parameters': {
+                'dropout': 0.2,
+                'kernel_size': 5,
+                'output_dim': 2
+            },
+            'optimizer': 'Adam',
+            'remapping': remap_path,
+            'key_format': 'fasta_descriptor',
+            'embedding_mode': 'mean',
+            'output_files_name': output_file
+        }
         
         # Add model checkpoint if provided
-        if model_checkpoint:
-            cmd.extend(["--model_checkpoint", model_checkpoint])
+        if model_checkpoint and os.path.exists(model_checkpoint):
+            config_data['checkpoint'] = model_checkpoint
         
-        print(f"Running PLM_Sol wrapper (proven approach): {' '.join(cmd)}")
+        # Create temporary config file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as config_file:
+            config_path = config_file.name
+            yaml.dump(config_data, config_file)
         
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 minutes max
-            cwd='/home/david_nunn/PLM_Sol'
-        )
+        print(f"Created inference config: {config_path}")
+        print(f"Remapping file: {remap_path}")
         
-        if result.returncode != 0:
-            print(f"PLM_Sol wrapper failed with code {result.returncode}")
-            print(f"STDOUT: {result.stdout}")
-            print(f"STDERR: {result.stderr}")
+        # Call inference.py directly with server embeddings
+        cmd = [
+            "conda", "run", "-n", "PLM_Sol",
+            "python", "/home/david_nunn/PLM_Sol/inference.py",
+            "--config", config_path
+        ]
+        
+        print(f"Running PLM_Sol inference with server embeddings: {' '.join(cmd)}")
+        
+        # Import the inference function directly to pass server embeddings
+        import sys
+        sys.path.insert(0, '/home/david_nunn/PLM_Sol')
+        
+        try:
+            from inference import inference
+            from argparse import Namespace
+            
+            # Create args object from config
+            args = Namespace(**config_data)
+            
+            # Call inference with server embeddings
+            result = inference(args, server_embeddings=server_embeddings)
+            
+            print(f"PLM_Sol inference completed")
+            
+            # Check if output file was created
+            if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
+                print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
+                return False
+            
+            # Validate CSV format
+            import pandas as pd
+            results_df = pd.read_csv(output_file)
+            print(f"PLM_Sol produced {len(results_df)} results")
+            print(f"CSV columns: {list(results_df.columns)}")
+            
+            # Check for real predictions (not all 0.5)
+            unique_scores = results_df['SolubilityScore'].nunique()
+            if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
+                print(f"WARNING: All predictions are 0.5 fallback values")
+                return False
+            
+            print(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
+            return True
+            
+        except ImportError as e:
+            print(f"ERROR: Could not import PLM_Sol inference module: {e}")
             return False
         
-        # PROVEN APPROACH: Wrapper creates output file directly at specified location
-        if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-            print(f"PLM_Sol output file not created or empty: {output_file}")
-            return False
-        
-        print(f"PLM_Sol wrapper created output file: {output_file}")
-        
-        # Validate CSV format
-        import pandas as pd
-        results_df = pd.read_csv(output_file)
-        print(f"PLM_Sol produced {len(results_df)} results")
-        print(f"CSV columns: {list(results_df.columns)}")
-        
-        return True
+        finally:
+            # Clean up temporary files
+            try:
+                if 'config_path' in locals():
+                    os.unlink(config_path)
+                if 'remap_path' in locals():
+                    os.unlink(remap_path)
+            except:
+                pass
             
     except Exception as e:
         print(f"Error running PLM_Sol with server embeddings: {e}")
@@ -189,12 +243,17 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     return output_file
 
 def run_original_plm_sol_wrapper(fasta_file, output_file, model_checkpoint=None):
-    """Run the original working PLM_Sol wrapper"""
+    """Run the original working PLM_Sol wrapper with proper environment"""
     
     # Use the original wrapper that we know works
     wrapper_path = '/home/david_nunn/PLM_Sol/plmsol_predict_wrapper.py'
     
-    cmd = ['python', wrapper_path, '--fasta', fasta_file, '--out', output_file]
+    cmd = [
+        'conda', 'run', '-n', 'PLM_Sol',
+        'python', wrapper_path, 
+        '--fasta', fasta_file, 
+        '--out', output_file
+    ]
     
     # Add model checkpoint if provided
     if model_checkpoint:
@@ -202,16 +261,43 @@ def run_original_plm_sol_wrapper(fasta_file, output_file, model_checkpoint=None)
     
     print(f"Running original PLM_Sol wrapper: {' '.join(cmd)}")
     
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(
+        cmd, 
+        capture_output=True, 
+        text=True,
+        timeout=300,  # 5 minute timeout
+        cwd='/home/david_nunn/PLM_Sol'
+    )
     
     if result.returncode != 0:
         print(f"PLM_Sol wrapper failed with return code {result.returncode}")
-        print(f"stdout: {result.stdout}")
-        print(f"stderr: {result.stderr}")
+        print(f"STDOUT: {result.stdout}")
+        print(f"STDERR: {result.stderr}")
         return False
     
-    print("PLM_Sol wrapper completed successfully")
-    return True
+    # Check if output file was created and is not empty
+    if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
+        print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
+        return False
+    
+    # Validate CSV format and check for real predictions
+    try:
+        import pandas as pd
+        results_df = pd.read_csv(output_file)
+        print(f"PLM_Sol produced {len(results_df)} results")
+        
+        # Check for real predictions (not all 0.5)
+        unique_scores = results_df['SolubilityScore'].nunique()
+        if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
+            print(f"WARNING: All predictions are 0.5 fallback values")
+            return False
+        
+        print(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
+        return True
+        
+    except Exception as e:
+        print(f"ERROR: Failed to validate PLM_Sol output: {e}")
+        return False
 
 def create_fallback_output(fasta_path, output_path):
     """Create fallback output with default predictions when PLM_Sol fails"""
