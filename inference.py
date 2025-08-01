@@ -96,6 +96,8 @@ def parse_arguments():
                    help='the formatting of the keys in the h5 file [fasta_descriptor_old, fasta_descriptor, hash]')
     p.add_argument('--embedding_mode', type=str, default='lm',
                    help='embedding mode: lm, profiles, or onehot')
+    p.add_argument('--server_embeddings_file', type=str, default=None,
+                   help='JSON file with server-provided embeddings (for fast path)')
 
 
     args = p.parse_args()
@@ -114,10 +116,31 @@ def parse_arguments():
 if __name__ == '__main__':
     original_args = copy.copy(parse_arguments())
     
+    # CRITICAL FIX: Load server embeddings if provided
+    server_embeddings = None
+    if original_args.server_embeddings_file:
+        print(f"[DEBUG] Loading server embeddings from: {original_args.server_embeddings_file}")
+        try:
+            import json
+            with open(original_args.server_embeddings_file, 'r') as f:
+                embeddings_data = json.load(f)
+            # Handle both formats: direct list or {"embeddings": list}
+            if isinstance(embeddings_data, list):
+                server_embeddings = embeddings_data
+            elif isinstance(embeddings_data, dict) and 'embeddings' in embeddings_data:
+                server_embeddings = embeddings_data['embeddings']
+            else:
+                print(f"[DEBUG] Warning: Unexpected embeddings format, using as-is")
+                server_embeddings = embeddings_data
+            print(f"[DEBUG] Loaded {len(server_embeddings)} server embeddings")
+        except Exception as e:
+            print(f"[DEBUG] Error loading server embeddings: {e}")
+            server_embeddings = None
+    
     # CRITICAL FIX: If no checkpoints_list provided, run inference directly with config args
     if not original_args.checkpoints_list:
         print(f"[DEBUG] No checkpoints_list provided, running inference with config args directly")
-        inference(original_args)
+        inference(original_args, server_embeddings=server_embeddings)
     else:
         # Original logic for multiple checkpoints
         for checkpoint in original_args.checkpoints_list:
