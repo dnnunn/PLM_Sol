@@ -406,7 +406,7 @@ def main():
             else:
                 # Use traditional approach (SLOW PATH)
                 print("Using traditional PLM_Sol wrapper (no server embeddings)")
-                success = run_original_plm_sol_wrapper(filtered_fasta, temp_output, args.model_checkpoint)
+                success = run_plm_sol_traditional(filtered_fasta, temp_output, args.model_checkpoint)
             
             if success and os.path.exists(temp_output):
                 # Merge results with filtered sequences
