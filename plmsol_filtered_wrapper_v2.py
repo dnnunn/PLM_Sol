@@ -74,7 +74,6 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             'optimizer': 'Adam',
             'remapping': remap_path,
             'key_format': 'fasta_descriptor',
-            'embedding_mode': 'mean',
             'output_files_name': output_file
         }
         
