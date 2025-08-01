@@ -1,0 +1,2 @@
+Accession,Sequence,Predictor,SolubilityScore,Probability_Soluble,Probability_Insoluble
+test_seq,MVPPWPIPPYPIPPWRPVPP,PLM_Sol,0.5,0.5,0.5
