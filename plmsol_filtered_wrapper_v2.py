@@ -121,36 +121,36 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         logging.info(f'Inference command: {" ".join(cmd)}')
         print(f"Running PLM_Sol inference with server embeddings: {' '.join(cmd)}")
         
-        # Import the inference function directly to pass server embeddings
-        import sys
-        sys.path.insert(0, '/home/david_nunn/PLM_Sol')
-        
+        # Run inference.py as a subprocess and capture stdout/stderr
+        import subprocess
+        logging.info('Running inference.py as subprocess with server embeddings...')
+        cmd = [
+            "conda", "run", "-n", "PLM_Sol",
+            "python", "/home/david_nunn/PLM_Sol/inference.py",
+            "--config", config_path
+        ]
         try:
-            from inference import inference
-            from argparse import Namespace
-            
-            # Create args object from config
-            args = Namespace(**config_data)
-            
-            # Call inference with server embeddings
-            result = inference(args, server_embeddings=server_embeddings)
-            
-            print(f"PLM_Sol inference completed")
-            
-            # Check if output file was created
-            if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-                msg = f"ERROR: PLM_Sol output file not created or empty: {output_file}"
-                logging.error(msg)
-                print(msg)
-                return False
-            
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            logging.info(f'inference.py return code: {proc.returncode}')
+            logging.info(f'inference.py STDOUT:\n{proc.stdout[:1000]}')
+            logging.info(f'inference.py STDERR:\n{proc.stderr[:1000]}')
+            print(f'inference.py return code: {proc.returncode}')
+            if proc.returncode != 0:
+                print(f'ERROR: inference.py exited with code {proc.returncode}')
+            # Log output file existence and size
+            if os.path.exists(output_file):
+                size = os.path.getsize(output_file)
+                logging.info(f'Output file {output_file} exists, size: {size} bytes')
+                print(f'Output file {output_file} exists, size: {size} bytes')
+            else:
+                logging.error(f'Output file {output_file} does not exist after inference.py')
+                print(f'ERROR: Output file {output_file} does not exist after inference.py')
             # Validate CSV format
             try:
                 results_df = pd.read_csv(output_file)
                 logging.info(f"PLM_Sol produced {len(results_df)} results")
                 logging.info(f"CSV columns: {list(results_df.columns)}")
                 logging.info(f"CSV head:\n{results_df.head().to_string()}")
-                # Check for real predictions (not all 0.5)
                 unique_scores = results_df['SolubilityScore'].nunique()
                 if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
                     msg = f"WARNING: All predictions are 0.5 fallback values (possible inference/model failure)"
@@ -164,11 +164,6 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
                 print(f"ERROR: Exception reading or validating output CSV: {e}")
                 return False
             return True
-            
-        except ImportError as e:
-            print(f"ERROR: Could not import PLM_Sol inference module: {e}")
-            return False
-        
         finally:
             # Clean up temporary files
             try:
@@ -176,9 +171,9 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
                     os.unlink(config_path)
                 if 'remap_path' in locals():
                     os.unlink(remap_path)
-            except:
-                pass
-            
+            except Exception as e:
+                logging.warning(f'Error cleaning up temp files: {e}')
+
     except Exception as e:
         print(f"Error running PLM_Sol with server embeddings: {e}")
         import traceback
