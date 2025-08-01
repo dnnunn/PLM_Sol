@@ -152,12 +152,23 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
                 print(f'ERROR: Output file {output_file} does not exist after inference.py')
             # Validate CSV format
             try:
-                results_df = pd.read_csv(output_file)
-                logging.info(f"PLM_Sol produced {len(results_df)} results")
-                logging.info(f"CSV columns: {list(results_df.columns)}")
-                logging.info(f"CSV head:\n{results_df.head().to_string()}")
-                unique_scores = results_df['SolubilityScore'].nunique()
-                if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
+                # Read and validate the output CSV
+                df = pd.read_csv(output_file)
+                logging.info(f'PLM_Sol produced {len(df)} results')
+                logging.info(f'CSV columns: {list(df.columns)}')
+                logging.info(f'CSV head:\n{df.head()}')
+                
+                # Map PLM_Sol output columns to expected format
+                if 'protein_ID' in df.columns and 'predict_result' in df.columns:
+                    df = df.rename(columns={'protein_ID': 'Accession', 'predict_result': 'SolubilityScore'})
+                    logging.info(f'Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore')
+                
+                # Validate required columns
+                if 'Accession' not in df.columns or 'SolubilityScore' not in df.columns:
+                    raise ValueError(f"Output CSV missing required columns. Found: {list(df.columns)}")
+                
+                unique_scores = df['SolubilityScore'].nunique()
+                if unique_scores == 1 and df['SolubilityScore'].iloc[0] == 0.5:
                     msg = f"WARNING: All predictions are 0.5 fallback values (possible inference/model failure)"
                     logging.warning(msg)
                     print(msg)
