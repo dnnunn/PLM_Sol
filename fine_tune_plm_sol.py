@@ -145,13 +145,12 @@ class PLMSolFineTuner:
             'val_remapping': str(embedding_base / 'val_emb' / 'remapped_sequences_file.fasta'),
             'test_remapping': str(embedding_base / 'test_emb' / 'remapped_sequences_file.fasta'),
             
-            # Model parameters (using pre-trained checkpoint)
-            'model_type': 'FFN',
+            # Model parameters (using correct biLSTM_TextCNN architecture)
+            'model_type': 'biLSTM_TextCNN',
             'model_parameters': {
-                'output_dim': 1,
-                'hidden_dim': 32,
-                'n_hidden_layers': 0,
-                'dropout': 0.25
+                'dropout': 0.2,
+                'kernel_size': 9,
+                'output_dim': 1
             },
             
             'checkpoint': None, # Ensure we are not loading a checkpoint
