@@ -116,7 +116,8 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         cmd = [
             "conda", "run", "-n", "PLM_Sol",
             "python", "/home/david_nunn/PLM_Sol/inference.py",
-            "--config", config_path
+            "--config", config_path,
+            "--server_embeddings_file", embeddings_file
         ]
         logging.info(f'Inference command: {" ".join(cmd)}')
         print(f"Running PLM_Sol inference with server embeddings: {' '.join(cmd)}")
@@ -127,7 +128,8 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         cmd = [
             "conda", "run", "-n", "PLM_Sol",
             "python", "/home/david_nunn/PLM_Sol/inference.py",
-            "--config", config_path
+            "--config", config_path,
+            "--server_embeddings_file", embeddings_file
         ]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True)
