@@ -226,13 +226,24 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
         print(f"[DEBUG] Merge reading temp results with columns: {list(results_df.columns)}")
         print(f"[DEBUG] Temp results head:\n{results_df.head()}")
         
+        # DEBUG: Show all sequence names in temp results
+        temp_sequence_names = list(results_df['Accession'].values)
+        print(f"[DEBUG] Temp results sequence names: {temp_sequence_names}")
+        
         for _, row in results_df.iterrows():
             results_dict[row['Accession']] = row
             
         print(f"[DEBUG] Loaded {len(results_dict)} results into merge dictionary")
+        print(f"[DEBUG] Results dict keys: {list(results_dict.keys())}")
     
     # Build final results maintaining original order
     final_results = []
+    
+    # DEBUG: Show all sequence names expected from original FASTA
+    original_sequence_names = []
+    for record in SeqIO.parse(original_fasta, 'fasta'):
+        original_sequence_names.append(record.id)
+    print(f"[DEBUG] Original FASTA sequence names: {original_sequence_names}")
     
     for record in SeqIO.parse(original_fasta, 'fasta'):
         accession = record.id
