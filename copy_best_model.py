@@ -49,7 +49,9 @@ def find_best_model_checkpoint(experiment_dir):
     """Find the best model checkpoint in the experiment directory"""
     experiment_path = Path(experiment_dir)
     
-    # Look for model checkpoints
+    # Look for model checkpoints in the models subdirectory first
+    models_subdir = experiment_path / "models"
+    
     model_patterns = [
         "model-*.t7",
         "model_*.t7", 
@@ -59,24 +61,37 @@ def find_best_model_checkpoint(experiment_dir):
     ]
     
     model_files = []
-    for pattern in model_patterns:
-        model_files.extend(experiment_path.glob(pattern))
+    
+    # First check the models subdirectory
+    if models_subdir.exists():
+        for pattern in model_patterns:
+            model_files.extend(models_subdir.glob(pattern))
+    
+    # If no models found in subdirectory, check main experiment directory
+    if not model_files:
+        for pattern in model_patterns:
+            model_files.extend(experiment_path.glob(pattern))
     
     if not model_files:
         print(f"❌ No model checkpoints found in {experiment_path}")
         return None
     
-    # If multiple files, prefer the most recent or specifically named ones
+    # If multiple files, prefer the highest numbered model (best performance)
     if len(model_files) == 1:
         best_model = model_files[0]
     else:
-        # Prefer files with "best" or "model-10" in name, otherwise most recent
-        best_candidates = [f for f in model_files if 'best' in f.name.lower() or 'model-10' in f.name]
+        # Prefer files with "best" in name first
+        best_candidates = [f for f in model_files if 'best' in f.name.lower()]
         if best_candidates:
             best_model = best_candidates[0]
         else:
-            # Sort by modification time (most recent first)
-            model_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+            # Sort by model number (highest first) - model-43.t7 should be preferred
+            import re
+            def extract_model_number(filename):
+                match = re.search(r'model-?(\d+)', filename.name)
+                return int(match.group(1)) if match else 0
+            
+            model_files.sort(key=extract_model_number, reverse=True)
             best_model = model_files[0]
     
     print(f"🏆 Best model checkpoint: {best_model.name}")
