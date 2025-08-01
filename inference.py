@@ -94,6 +94,8 @@ def parse_arguments():
                    help='cutoff similarity for when to do lookup and when to use denovo predictions. If negative, denovo predictions will always be used.')
     p.add_argument('--key_format', type=str, default='hash',
                    help='the formatting of the keys in the h5 file [fasta_descriptor_old, fasta_descriptor, hash]')
+    p.add_argument('--embedding_mode', type=str, default='lm',
+                   help='embedding mode: lm, profiles, or onehot')
 
 
     args = p.parse_args()
