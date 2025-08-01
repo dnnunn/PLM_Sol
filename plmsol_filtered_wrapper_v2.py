@@ -91,6 +91,9 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
                 'output_dim': 2
             },
             'optimizer': 'Adam',
+            'optimizer_parameters': {
+                'lr': 1e-4
+            },
             'remapping': remap_path,
             'key_format': 'fasta_descriptor',
             'output_files_name': output_file
