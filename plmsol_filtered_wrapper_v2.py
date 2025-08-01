@@ -31,6 +31,21 @@ from Bio.Seq import Seq
 import yaml
 import shutil
 import json
+import logging
+
+# Setup debug logging to file
+WRAPPER_DEBUG_LOG = os.path.join(os.path.dirname(__file__), 'plmsol_filtered_wrapper_v2_debug.log')
+logging.basicConfig(
+    filename=WRAPPER_DEBUG_LOG,
+    filemode='a',
+    format='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
+    level=logging.DEBUG
+)
+logging.info('\n\n--- NEW RUN: plmsol_filtered_wrapper_v2.py ---')
+logging.info(f'Current working directory: {os.getcwd()}')
+logging.info(f'Python executable: {sys.executable}')
+logging.info(f'Args: {sys.argv}')
+
 
 def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file, model_checkpoint):
     """
@@ -42,9 +57,11 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         import yaml
         import json
         
-        # Load server embeddings
+        logging.info(f'Loading embeddings from: {embeddings_file}')
         with open(embeddings_file, 'r') as f:
             embeddings_data = json.load(f)
+        logging.info(f'Embeddings keys: {list(embeddings_data.keys()) if hasattr(embeddings_data, "keys") else "[list]"}')
+        logging.info(f'Embeddings preview: {str(embeddings_data)[:300]}')
         
         # Handle different embedding data formats
         if 'embeddings' in embeddings_data:
@@ -52,9 +69,11 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         elif isinstance(embeddings_data, list):
             server_embeddings = embeddings_data
         else:
+            logging.error(f"ERROR: Invalid embeddings format in {embeddings_file}")
             print(f"ERROR: Invalid embeddings format in {embeddings_file}")
             return False
         
+        logging.info(f"Loaded {len(server_embeddings)} server embeddings")
         print(f"Loaded {len(server_embeddings)} server embeddings")
         
         # Create remapping file for sequence IDs
@@ -77,17 +96,21 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             'output_files_name': output_file
         }
         
-        # Add model checkpoint if provided
-        if model_checkpoint and os.path.exists(model_checkpoint):
-            config_data['checkpoint'] = model_checkpoint
+        if model_checkpoint:
+            logging.info(f'Checking model checkpoint: {model_checkpoint}')
+            if os.path.exists(model_checkpoint):
+                logging.info(f'Model checkpoint exists: {model_checkpoint}')
+                config_data['checkpoint'] = model_checkpoint
+            else:
+                logging.error(f'Model checkpoint MISSING: {model_checkpoint}')
         
         # Create temporary config file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as config_file:
             config_path = config_file.name
             yaml.dump(config_data, config_file)
-        
-        print(f"Created inference config: {config_path}")
-        print(f"Remapping file: {remap_path}")
+        logging.info(f'Created inference config: {config_path}')
+        logging.info(f'Config YAML content:\n{yaml.dump(config_data)}')
+        logging.info(f'Remapping file: {remap_path}')
         
         # Call inference.py directly with server embeddings
         cmd = [
@@ -95,7 +118,7 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             "python", "/home/david_nunn/PLM_Sol/inference.py",
             "--config", config_path
         ]
-        
+        logging.info(f'Inference command: {" ".join(cmd)}')
         print(f"Running PLM_Sol inference with server embeddings: {' '.join(cmd)}")
         
         # Import the inference function directly to pass server embeddings
@@ -116,22 +139,30 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             
             # Check if output file was created
             if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-                print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
+                msg = f"ERROR: PLM_Sol output file not created or empty: {output_file}"
+                logging.error(msg)
+                print(msg)
                 return False
             
             # Validate CSV format
-            import pandas as pd
-            results_df = pd.read_csv(output_file)
-            print(f"PLM_Sol produced {len(results_df)} results")
-            print(f"CSV columns: {list(results_df.columns)}")
-            
-            # Check for real predictions (not all 0.5)
-            unique_scores = results_df['SolubilityScore'].nunique()
-            if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
-                print(f"WARNING: All predictions are 0.5 fallback values")
+            try:
+                results_df = pd.read_csv(output_file)
+                logging.info(f"PLM_Sol produced {len(results_df)} results")
+                logging.info(f"CSV columns: {list(results_df.columns)}")
+                logging.info(f"CSV head:\n{results_df.head().to_string()}")
+                # Check for real predictions (not all 0.5)
+                unique_scores = results_df['SolubilityScore'].nunique()
+                if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
+                    msg = f"WARNING: All predictions are 0.5 fallback values (possible inference/model failure)"
+                    logging.warning(msg)
+                    print(msg)
+                    return False
+                logging.info(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
+                print(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
+            except Exception as e:
+                logging.error(f"Exception reading or validating output CSV: {e}")
+                print(f"ERROR: Exception reading or validating output CSV: {e}")
                 return False
-            
-            print(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
             return True
             
         except ImportError as e:
