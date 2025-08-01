@@ -242,61 +242,105 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     
     return output_file
 
-def run_original_plm_sol_wrapper(fasta_file, output_file, model_checkpoint=None):
-    """Run the original working PLM_Sol wrapper with proper environment"""
+def run_plm_sol_traditional(fasta_file, output_file, model_checkpoint=None):
+    """
+    Traditional PLM_Sol prediction using conda environment and proper working directory.
+    Fixed to use conda environment and validate output.
+    """
+    print(f" TRADITIONAL WRAPPER DEBUG - Starting execution")
+    print(f"   Input FASTA: {fasta_file}")
+    print(f"   Output file: {output_file}")
+    print(f"   Model checkpoint: {model_checkpoint}")
     
-    # Use the original wrapper that we know works
-    wrapper_path = '/home/david_nunn/PLM_Sol/plmsol_predict_wrapper.py'
-    
-    cmd = [
-        'conda', 'run', '-n', 'PLM_Sol',
-        'python', wrapper_path, 
-        '--fasta', fasta_file, 
-        '--out', output_file
-    ]
-    
-    # Add model checkpoint if provided
-    if model_checkpoint:
-        cmd.extend(['--model_checkpoint', model_checkpoint])
-    
-    print(f"Running original PLM_Sol wrapper: {' '.join(cmd)}")
-    
-    result = subprocess.run(
-        cmd, 
-        capture_output=True, 
-        text=True,
-        timeout=300,  # 5 minute timeout
-        cwd='/home/david_nunn/PLM_Sol'
-    )
-    
-    if result.returncode != 0:
-        print(f"PLM_Sol wrapper failed with return code {result.returncode}")
-        print(f"STDOUT: {result.stdout}")
-        print(f"STDERR: {result.stderr}")
-        return False
-    
-    # Check if output file was created and is not empty
-    if not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-        print(f"ERROR: PLM_Sol output file not created or empty: {output_file}")
-        return False
-    
-    # Validate CSV format and check for real predictions
     try:
-        import pandas as pd
-        results_df = pd.read_csv(output_file)
-        print(f"PLM_Sol produced {len(results_df)} results")
+        # Use conda environment for proper dependencies
+        wrapper_path = os.path.join(os.path.dirname(__file__), "plmsol_predict_wrapper.py")
+        print(f"   Wrapper script: {wrapper_path}")
+        print(f"   Wrapper exists: {os.path.exists(wrapper_path)}")
         
-        # Check for real predictions (not all 0.5)
-        unique_scores = results_df['SolubilityScore'].nunique()
-        if unique_scores == 1 and results_df['SolubilityScore'].iloc[0] == 0.5:
-            print(f"WARNING: All predictions are 0.5 fallback values")
+        cmd = ['conda', 'run', '-n', 'PLM_Sol', 'python', wrapper_path, 
+               '--fasta', fasta_file, '--out', output_file]
+        
+        if model_checkpoint:
+            cmd.extend(['--model_checkpoint', model_checkpoint])
+        
+        print(f"   Command: {' '.join(cmd)}")
+        
+        # Set working directory to PLM_Sol root
+        working_dir = os.path.dirname(__file__)
+        print(f"   Working directory: {working_dir}")
+        
+        print(f" Executing traditional PLM_Sol wrapper...")
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=working_dir)
+        
+        print(f" Traditional wrapper result:")
+        print(f"   Return code: {result.returncode}")
+        print(f"   STDOUT length: {len(result.stdout)}")
+        print(f"   STDERR length: {len(result.stderr)}")
+        
+        if result.stdout:
+            print(f"   STDOUT (first 10 lines):")
+            for i, line in enumerate(result.stdout.split('\n')[:10], 1):
+                if line.strip():
+                    print(f"     {i:2d}: {line}")
+        
+        if result.stderr:
+            print(f"   STDERR (first 10 lines):")
+            for i, line in enumerate(result.stderr.split('\n')[:10], 1):
+                if line.strip():
+                    print(f"     {i:2d}: {line}")
+        
+        if result.returncode != 0:
+            print(f" ERROR: PLM_Sol traditional wrapper failed with code {result.returncode}")
+            print(f"Full STDOUT: {result.stdout}")
+            print(f"Full STDERR: {result.stderr}")
             return False
         
-        print(f"SUCCESS: PLM_Sol produced {unique_scores} unique prediction scores")
+        # Validate output file exists and has content
+        print(f" Validating output file...")
+        if not os.path.exists(output_file):
+            print(f" ERROR: Output file {output_file} does not exist")
+            return False
+        
+        file_size = os.path.getsize(output_file)
+        print(f"   Output file size: {file_size} bytes")
+        
+        if file_size == 0:
+            print(f" ERROR: Output file {output_file} is empty")
+            return False
+        
+        # Check if all predictions are fallback values (0.5)
+        print(f" Analyzing prediction scores...")
+        try:
+            import pandas as pd
+            df = pd.read_csv(output_file)
+            print(f"   CSV shape: {df.shape}")
+            print(f"   CSV columns: {list(df.columns)}")
+            
+            if 'SolubilityScore' in df.columns:
+                scores = df['SolubilityScore'].values
+                unique_scores = set(scores)
+                print(f"   Unique scores: {unique_scores}")
+                print(f"   All scores are 0.5: {unique_scores == {0.5}}")
+                
+                if len(unique_scores) == 1 and scores[0] == 0.5:
+                    print(f"  WARNING: All predictions are 0.5 fallback values - PLM_Sol inference may have failed")
+                    print(f"   This suggests the underlying PLM_Sol model did not run successfully")
+                    return False
+                else:
+                    print(f" SUCCESS: Real PLM_Sol predictions detected (not all 0.5)")
+            else:
+                print(f"  WARNING: SolubilityScore column not found in output")
+        except Exception as e:
+            print(f"  WARNING: Could not validate prediction scores: {e}")
+        
+        print(f" Traditional wrapper completed successfully")
         return True
         
     except Exception as e:
-        print(f"ERROR: Failed to validate PLM_Sol output: {e}")
+        print(f" ERROR in traditional PLM_Sol: {e}")
+        import traceback
+        print(f"   Traceback: {traceback.format_exc()}")
         return False
 
 def create_fallback_output(fasta_path, output_path):
