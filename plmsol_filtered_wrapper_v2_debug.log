@@ -1,0 +1,222 @@
+2025-08-01 20:11:12,907 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:11:12,907 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:11:12,907 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:11:12,907 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmp3xjf_w6_.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpycd0s_zt.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:11:12,914 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpycd0s_zt.json
+2025-08-01 20:11:14,157 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:11:16,193 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.15898476541042328, -0.21039171516895294, 0.22966867685317993, 0.4339006841182709, 0.3449912965297699, -0.11514545232057571, -0.20946063101291656, -0.1956862360239029, 0.12233172357082367, -0.07930751889944077, -0.10370414704084396, 0.1594356894493103, -0.033811505883932114, 0.0243452787399292,
+2025-08-01 20:11:16,193 INFO [plmsol_filtered_wrapper_v2]: Loaded 10 server embeddings
+2025-08-01 20:11:16,200 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:16,200 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:16,201 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpusf_1s_v.yml
+2025-08-01 20:11:16,202 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpawkkg80a/temp_plm_results.csv
+remapping: /var/tmp/tmpjohg4z26.fasta
+
+2025-08-01 20:11:16,202 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpjohg4z26.fasta
+2025-08-01 20:11:16,202 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpusf_1s_v.yml
+2025-08-01 20:11:16,957 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:16,957 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:16,957 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:16,957 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:17,011 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:11:17,016 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:11:17,018 DEBUG [__init__]: interactive is False
+2025-08-01 20:11:17,018 DEBUG [__init__]: platform is linux
+2025-08-01 20:11:17,068 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:11:17,070 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
+2025-08-01 20:11:24,732 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:11:24,732 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:11:24,732 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:11:24,732 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpiryeoqoy.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmp2fntkcpb.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:11:24,738 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmp2fntkcpb.json
+2025-08-01 20:11:25,284 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:11:26,197 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.13262295722961426, -0.08502691984176636, 0.2758082151412964, 0.37801435589790344, 0.31633490324020386, -0.15856489539146423, -0.061089348047971725, -0.3133057951927185, 0.029856301844120026, 0.11619606614112854, -0.1443813294172287, 0.252324640750885, -0.019235366955399513, 0.02768133766949176
+2025-08-01 20:11:26,197 INFO [plmsol_filtered_wrapper_v2]: Loaded 5 server embeddings
+2025-08-01 20:11:26,198 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:26,198 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:26,199 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpuq6w5uf4.yml
+2025-08-01 20:11:26,200 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpjav6vnrv/temp_plm_results.csv
+remapping: /var/tmp/tmpz8x0hsjw.fasta
+
+2025-08-01 20:11:26,200 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpz8x0hsjw.fasta
+2025-08-01 20:11:26,200 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpuq6w5uf4.yml
+2025-08-01 20:11:26,924 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:26,924 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:26,924 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:26,924 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:26,978 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:11:26,982 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:11:26,984 DEBUG [__init__]: interactive is False
+2025-08-01 20:11:26,984 DEBUG [__init__]: platform is linux
+2025-08-01 20:11:27,035 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:11:27,036 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
+2025-08-01 20:11:34,005 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:11:34,005 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:11:34,005 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:11:34,005 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpfloo5fe4.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpkxfk13z7.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:11:34,011 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpkxfk13z7.json
+2025-08-01 20:11:34,485 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:11:35,277 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.24182377755641937, -0.13398456573486328, 0.3680782616138458, 0.32625752687454224, 0.37636640667915344, -0.0584985688328743, -0.12724676728248596, -0.19091036915779114, 0.011351652443408966, 0.1129535436630249, -0.08111491799354553, 0.28179749846458435, 0.039499666541814804, -0.0307090785354375
+2025-08-01 20:11:35,278 INFO [plmsol_filtered_wrapper_v2]: Loaded 4 server embeddings
+2025-08-01 20:11:35,280 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:35,280 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:11:35,282 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpfgg3mymg.yml
+2025-08-01 20:11:35,282 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpat6mjld9/temp_plm_results.csv
+remapping: /var/tmp/tmppe2nyi2k.fasta
+
+2025-08-01 20:11:35,282 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmppe2nyi2k.fasta
+2025-08-01 20:11:35,282 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpfgg3mymg.yml
+2025-08-01 20:11:36,013 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:36,013 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:36,013 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:11:36,013 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:11:36,066 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:11:36,071 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:11:36,072 DEBUG [__init__]: interactive is False
+2025-08-01 20:11:36,072 DEBUG [__init__]: platform is linux
+2025-08-01 20:11:36,123 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:11:36,125 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
+2025-08-01 20:19:55,369 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:19:55,369 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:19:55,369 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:19:55,369 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmp9e4xgog_.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpkaoq8bdd.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:19:55,376 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpkaoq8bdd.json
+2025-08-01 20:19:56,531 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:19:58,406 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.04165184125304222, -0.27681007981300354, 0.36657533049583435, 0.2091200053691864, -0.0046358234249055386, -0.16453735530376434, -0.15452417731285095, -0.12305299937725067, -0.07163283228874207, -0.054866399616003036, -0.19196105003356934, 0.1390211433172226, -0.09454353898763657, -0.0335065349
+2025-08-01 20:19:58,407 INFO [plmsol_filtered_wrapper_v2]: Loaded 9 server embeddings
+2025-08-01 20:19:58,407 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:19:58,407 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:19:58,408 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmp06r8vc0e.yml
+2025-08-01 20:19:58,409 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmpsie10434/temp_plm_results.csv
+remapping: /var/tmp/tmp9vgwtcj5.fasta
+
+2025-08-01 20:19:58,409 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmp9vgwtcj5.fasta
+2025-08-01 20:19:58,409 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmp06r8vc0e.yml
+2025-08-01 20:19:59,168 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:19:59,169 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:19:59,169 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:19:59,169 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:19:59,221 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:19:59,227 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:19:59,228 DEBUG [__init__]: interactive is False
+2025-08-01 20:19:59,228 DEBUG [__init__]: platform is linux
+2025-08-01 20:19:59,278 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:19:59,279 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
+2025-08-01 20:20:05,599 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:20:05,600 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:20:05,600 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:20:05,600 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpfxkzet6j.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmp0822pf0n.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:20:05,606 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmp0822pf0n.json
+2025-08-01 20:20:05,976 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:20:06,601 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.10637170821428299, -0.14844238758087158, 0.3876217305660248, 0.3679211735725403, 0.23163872957229614, -0.0979941189289093, -0.13492271304130554, -0.12076352536678314, 0.08692841231822968, -0.050906188786029816, -0.21927475929260254, 0.049727849662303925, -0.0914301872253418, -0.053612824529409
+2025-08-01 20:20:06,601 INFO [plmsol_filtered_wrapper_v2]: Loaded 3 server embeddings
+2025-08-01 20:20:06,608 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:20:06,608 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:20:06,609 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmp5g8qzds0.yml
+2025-08-01 20:20:06,610 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmp9wiju_hz/temp_plm_results.csv
+remapping: /var/tmp/tmp71xf3wah.fasta
+
+2025-08-01 20:20:06,610 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmp71xf3wah.fasta
+2025-08-01 20:20:06,610 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmp5g8qzds0.yml
+2025-08-01 20:20:07,343 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:20:07,343 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:20:07,345 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:20:07,345 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:20:07,399 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:20:07,404 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:20:07,405 DEBUG [__init__]: interactive is False
+2025-08-01 20:20:07,405 DEBUG [__init__]: platform is linux
+2025-08-01 20:20:07,457 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:20:07,458 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
+2025-08-01 20:20:12,732 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-01 20:20:12,732 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-01 20:20:12,732 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-01 20:20:12,732 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmp544c3wo7.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmpyxqx7h4w.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-01 20:20:12,740 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmpyxqx7h4w.json
+2025-08-01 20:20:12,970 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-01 20:20:13,360 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.29350149631500244, -0.21763862669467926, 0.229954332113266, 0.35360226035118103, 0.2513989806175232, -0.10148719698190689, -0.048144251108169556, -0.07622884213924408, -0.0810227170586586, 0.0036957580596208572, -0.0382835678756237, 0.03587226942181587, -0.10102055966854095, -0.024048876017332
+2025-08-01 20:20:13,360 INFO [plmsol_filtered_wrapper_v2]: Loaded 2 server embeddings
+2025-08-01 20:20:13,361 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:20:13,361 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-01 20:20:13,362 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmph2gbpw25.yml
+2025-08-01 20:20:13,363 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+output_files_name: /var/tmp/tmplp5orto1/temp_plm_results.csv
+remapping: /var/tmp/tmp6jpsmj2d.fasta
+
+2025-08-01 20:20:13,363 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmp6jpsmj2d.fasta
+2025-08-01 20:20:13,363 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmph2gbpw25.yml
+2025-08-01 20:20:14,115 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:20:14,115 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:20:14,115 DEBUG [__init__]: Creating converter from 7 to 5
+2025-08-01 20:20:14,115 DEBUG [__init__]: Creating converter from 5 to 7
+2025-08-01 20:20:14,171 DEBUG [__init__]: matplotlib data path: /home/david_nunn/miniconda3/envs/PLM_Sol/lib/python3.8/site-packages/matplotlib/mpl-data
+2025-08-01 20:20:14,176 DEBUG [__init__]: CONFIGDIR=/home/david_nunn/.config/matplotlib
+2025-08-01 20:20:14,177 DEBUG [__init__]: interactive is False
+2025-08-01 20:20:14,177 DEBUG [__init__]: platform is linux
+2025-08-01 20:20:14,230 DEBUG [__init__]: CACHEDIR=/home/david_nunn/.cache/matplotlib
+2025-08-01 20:20:14,232 DEBUG [font_manager]: Using fontManager instance from /home/david_nunn/.cache/matplotlib/fontlist-v330.json
