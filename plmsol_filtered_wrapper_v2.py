@@ -217,9 +217,15 @@ def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
     return filtered_sequences, kept_sequences
 
 def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fasta, output_file):
-    """Merge PLM_Sol results with filtered sequences, maintaining original order."""
-    
-    # Read PLM_Sol results if they exist
+    """
+    Merge PLM_Sol results with filtered sequences, maintaining original order.
+    Filtered sequences get default values (0.5).
+    """
+    print(f"\n[MERGE DEBUG] === STARTING MERGE FUNCTION ===")
+    print(f"[MERGE DEBUG] PLM_Sol results file: {plm_sol_results}")
+    print(f"[MERGE DEBUG] Original FASTA: {original_fasta}")
+    print(f"[MERGE DEBUG] Output file: {output_file}")
+    print(f"[MERGE DEBUG] Filtered sequences count: {len(filtered_sequences)}")
     results_dict = {}
     if os.path.exists(plm_sol_results):
         results_df = pd.read_csv(plm_sol_results)
@@ -470,6 +476,13 @@ def main():
             
             if success and os.path.exists(temp_output):
                 # Merge results with filtered sequences
+                print(f"\n[WRAPPER DEBUG] === CALLING MERGE FUNCTION ===")
+                print(f"[WRAPPER DEBUG] success = {success}")
+                print(f"[WRAPPER DEBUG] temp_output exists = {os.path.exists(temp_output)}")
+                print(f"[WRAPPER DEBUG] temp_output = {temp_output}")
+                print(f"[WRAPPER DEBUG] filtered_sequences count = {len(filtered_sequences)}")
+                print(f"[WRAPPER DEBUG] args.fasta = {args.fasta}")
+                print(f"[WRAPPER DEBUG] args.out = {args.out}")
                 merge_results_with_filtered(temp_output, filtered_sequences, args.fasta, args.out)
             else:
                 print("PLM_Sol wrapper failed, creating fallback output for all sequences")
