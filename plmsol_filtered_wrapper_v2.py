@@ -204,16 +204,30 @@ def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
     filtered_sequences = []
     kept_sequences = []
     
+    print(f"\n[FILTER DEBUG] === SEQUENCE FILTERING ANALYSIS ===")
+    print(f"[FILTER DEBUG] Input FASTA: {input_fasta}")
+    print(f"[FILTER DEBUG] Max length limit: {max_length}")
+    
     with open(output_fasta, 'w') as out_handle:
         for i, record in enumerate(SeqIO.parse(input_fasta, 'fasta')):
-            if len(record.seq) > max_length:
+            seq_len = len(record.seq)
+            print(f"[FILTER DEBUG] Sequence {i}: ID='{record.id}', Length={seq_len}")
+            
+            if seq_len > max_length:
                 filtered_sequences.append((i, record.id, len(record.seq), str(record.seq)))
-                print(f"Filtering out sequence {record.id} (length: {len(record.seq)})")
+                print(f"[FILTER DEBUG] ❌ FILTERED OUT: {record.id} (length: {seq_len} > {max_length})")
             else:
                 SeqIO.write(record, out_handle, 'fasta')
                 kept_sequences.append((i, record.id, len(record.seq), str(record.seq)))
+                print(f"[FILTER DEBUG] ✅ KEPT: {record.id} (length: {seq_len} <= {max_length})")
     
-    print(f"Kept {len(kept_sequences)} sequences, filtered {len(filtered_sequences)} sequences")
+    print(f"\n[FILTER DEBUG] === FILTERING SUMMARY ===")
+    print(f"[FILTER DEBUG] Kept {len(kept_sequences)} sequences, filtered {len(filtered_sequences)} sequences")
+    
+    if len(kept_sequences) == 0:
+        print(f"[FILTER DEBUG] ⚠️  ALL SEQUENCES FILTERED OUT! This will trigger early return and fallback values!")
+        print(f"[FILTER DEBUG] Consider increasing max_length or checking sequence validity")
+    
     return filtered_sequences, kept_sequences
 
 def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fasta, output_file):
@@ -464,15 +478,24 @@ def main():
             return
         
         # Run PLM_Sol on filtered sequences using the original working wrapper OR server embeddings
+        print(f"\n[MAIN DEBUG] === ABOUT TO RUN PLM_SOL ===")
+        print(f"[MAIN DEBUG] filtered_fasta = {filtered_fasta}")
+        print(f"[MAIN DEBUG] temp_output = {temp_output}")
+        print(f"[MAIN DEBUG] server_embeddings_file = {args.server_embeddings_file}")
+        
         try:
             if args.server_embeddings_file:
                 # Use server embeddings (FAST PATH)
+                print(f"[MAIN DEBUG] Taking SERVER EMBEDDINGS path")
                 print(f"Using server embeddings from: {args.server_embeddings_file}")
                 success = run_plm_sol_with_server_embeddings(filtered_fasta, temp_output, args.server_embeddings_file, args.model_checkpoint)
+                print(f"[MAIN DEBUG] Server embeddings function returned: {success}")
             else:
                 # Use traditional approach (SLOW PATH)
+                print(f"[MAIN DEBUG] Taking TRADITIONAL path")
                 print("Using traditional PLM_Sol wrapper (no server embeddings)")
                 success = run_plm_sol_traditional(filtered_fasta, temp_output, args.model_checkpoint)
+                print(f"[MAIN DEBUG] Traditional function returned: {success}")
             
             if success and os.path.exists(temp_output):
                 # Merge results with filtered sequences
