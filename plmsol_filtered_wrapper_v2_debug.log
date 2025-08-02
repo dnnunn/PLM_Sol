@@ -2568,3 +2568,10 @@ remapping: /var/tmp/tmpp80r4c1_.fasta
 2025-08-01 22:22:19,172 INFO [plmsol_filtered_wrapper_v2]: Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore
 2025-08-01 22:22:19,174 INFO [plmsol_filtered_wrapper_v2]: Saved renamed columns to temp file: /var/tmp/tmp3d32shnf/temp_plm_results.csv
 2025-08-01 22:22:19,174 INFO [plmsol_filtered_wrapper_v2]: SUCCESS: PLM_Sol produced 3 unique prediction scores
+2025-08-02 06:59:46,383 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-02 06:59:46,399 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-02 06:59:46,399 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-02 06:59:46,399 INFO [plmsol_filtered_wrapper_v2]: Args: ['plmsol_filtered_wrapper_v2.py', '--fasta', '/home/david_nunn/PLM_Sol/ten_seq_test.fasta', '--out', '/home/david_nunn/PLM_Sol/tmp_wrapper_test_out.csv', '--server_embeddings_file', '/home/david_nunn/PLM_Sol/tmp_wrapper_emb.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-02 06:59:46,527 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /home/david_nunn/PLM_Sol/tmp_wrapper_emb.json
