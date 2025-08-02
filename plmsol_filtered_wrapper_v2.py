@@ -251,7 +251,8 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
         print(f"[DEBUG] Temp results sequence names: {temp_sequence_names}")
         
         for _, row in results_df.iterrows():
-            results_dict[row['Accession']] = row
+            clean_key = str(row['Accession']).strip().lower()
+            results_dict[clean_key] = row
             
         print(f"[DEBUG] Loaded {len(results_dict)} results into merge dictionary")
         print(f"[DEBUG] Results dict keys: {list(results_dict.keys())}")
@@ -266,11 +267,12 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     print(f"[DEBUG] Original FASTA sequence names: {original_sequence_names}")
     
     for record in SeqIO.parse(original_fasta, 'fasta'):
-        accession = record.id
+        accession_raw = record.id
+        accession = accession_raw.strip().lower()
         sequence = str(record.seq)
         
         # Check if this sequence was filtered
-        was_filtered = any(acc == accession for _, acc, _, _ in filtered_sequences)
+        was_filtered = any(acc.strip().lower() == accession for _, acc, _, _ in filtered_sequences)
         
         if was_filtered:
             # Assign default values for filtered sequences
