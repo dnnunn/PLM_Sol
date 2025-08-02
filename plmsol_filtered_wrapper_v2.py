@@ -181,8 +181,8 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
             except Exception as e:
                 logging.error(f"Exception reading or validating output CSV: {e}")
                 print(f"ERROR: Exception reading or validating output CSV: {e}")
-                return False
-            return True
+                return None
+            return output_file
         finally:
             # Clean up temporary files
             try:
@@ -197,7 +197,7 @@ def run_plm_sol_with_server_embeddings(fasta_file, output_file, embeddings_file,
         print(f"Error running PLM_Sol with server embeddings: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        return None
 
 def create_filtered_fasta(input_fasta, output_fasta, max_length=4000):
     """Create a filtered FASTA file excluding sequences longer than max_length."""
@@ -272,6 +272,8 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
         sequence = str(record.seq)
         
         # Check if this sequence was filtered
+        # The 'accession' here is already normalized (lower, stripped)
+        # The 'acc' from filtered_sequences is the raw record.id
         was_filtered = any(acc.strip().lower() == accession for _, acc, _, _ in filtered_sequences)
         
         if was_filtered:
@@ -378,20 +380,20 @@ def run_plm_sol_traditional(fasta_file, output_file, model_checkpoint=None):
             print(f" ERROR: PLM_Sol traditional wrapper failed with code {result.returncode}")
             print(f"Full STDOUT: {result.stdout}")
             print(f"Full STDERR: {result.stderr}")
-            return False
+            return None
         
         # Validate output file exists and has content
         print(f" Validating output file...")
         if not os.path.exists(output_file):
             print(f" ERROR: Output file {output_file} does not exist")
-            return False
+            return None
         
         file_size = os.path.getsize(output_file)
         print(f"   Output file size: {file_size} bytes")
         
         if file_size == 0:
             print(f" ERROR: Output file {output_file} is empty")
-            return False
+            return None
         
         # Check if all predictions are fallback values (0.5)
         print(f" Analyzing prediction scores...")
@@ -410,7 +412,7 @@ def run_plm_sol_traditional(fasta_file, output_file, model_checkpoint=None):
                 if len(unique_scores) == 1 and scores[0] == 0.5:
                     print(f"  WARNING: All predictions are 0.5 fallback values - PLM_Sol inference may have failed")
                     print(f"   This suggests the underlying PLM_Sol model did not run successfully")
-                    return False
+                    return None
                 else:
                     print(f" SUCCESS: Real PLM_Sol predictions detected (not all 0.5)")
             else:
@@ -419,13 +421,13 @@ def run_plm_sol_traditional(fasta_file, output_file, model_checkpoint=None):
             print(f"  WARNING: Could not validate prediction scores: {e}")
         
         print(f" Traditional wrapper completed successfully")
-        return True
+        return output_file
         
     except Exception as e:
         print(f" ERROR in traditional PLM_Sol: {e}")
         import traceback
         print(f"   Traceback: {traceback.format_exc()}")
-        return False
+        return None
 
 def create_fallback_output(fasta_path, output_path):
     """Create fallback output with default predictions when PLM_Sol fails"""
@@ -488,31 +490,31 @@ def main():
         print(f"[MAIN DEBUG] server_embeddings_file = {args.server_embeddings_file}")
         
         try:
+            plm_sol_results_path = None
             if args.server_embeddings_file:
                 # Use server embeddings (FAST PATH)
                 print(f"[MAIN DEBUG] Taking SERVER EMBEDDINGS path")
                 print(f"Using server embeddings from: {args.server_embeddings_file}")
-                success = run_plm_sol_with_server_embeddings(filtered_fasta, temp_output, args.server_embeddings_file, args.model_checkpoint)
-                print(f"[MAIN DEBUG] Server embeddings function returned: {success}")
+                plm_sol_results_path = run_plm_sol_with_server_embeddings(filtered_fasta, temp_output, args.server_embeddings_file, args.model_checkpoint)
+                print(f"[MAIN DEBUG] Server embeddings function returned: {plm_sol_results_path}")
             else:
                 # Use traditional approach (SLOW PATH)
                 print(f"[MAIN DEBUG] Taking TRADITIONAL path")
                 print("Using traditional PLM_Sol wrapper (no server embeddings)")
-                success = run_plm_sol_traditional(filtered_fasta, temp_output, args.model_checkpoint)
-                print(f"[MAIN DEBUG] Traditional function returned: {success}")
+                plm_sol_results_path = run_plm_sol_traditional(filtered_fasta, temp_output, args.model_checkpoint)
+                print(f"[MAIN DEBUG] Traditional function returned: {plm_sol_results_path}")
             
-            if success and os.path.exists(temp_output):
+            if plm_sol_results_path and os.path.exists(plm_sol_results_path):
                 # Merge results with filtered sequences
                 print(f"\n[WRAPPER DEBUG] === CALLING MERGE FUNCTION ===")
-                print(f"[WRAPPER DEBUG] success = {success}")
-                print(f"[WRAPPER DEBUG] temp_output exists = {os.path.exists(temp_output)}")
-                print(f"[WRAPPER DEBUG] temp_output = {temp_output}")
+                print(f"[WRAPPER DEBUG] plm_sol_results_path = {plm_sol_results_path}")
+                print(f"[WRAPPER DEBUG] temp_output exists = {os.path.exists(plm_sol_results_path)}")
                 print(f"[WRAPPER DEBUG] filtered_sequences count = {len(filtered_sequences)}")
                 print(f"[WRAPPER DEBUG] args.fasta = {args.fasta}")
                 print(f"[WRAPPER DEBUG] args.out = {args.out}")
-                merge_results_with_filtered(temp_output, filtered_sequences, args.fasta, args.out)
+                merge_results_with_filtered(plm_sol_results_path, filtered_sequences, args.fasta, args.out)
             else:
-                print("PLM_Sol wrapper failed, creating fallback output for all sequences")
+                print(f"PLM_Sol wrapper failed (results path: {plm_sol_results_path}), creating fallback output for all sequences")
                 create_fallback_output(args.fasta, args.out)
                 
         except Exception as e:
