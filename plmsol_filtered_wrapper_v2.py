@@ -346,8 +346,10 @@ def run_plm_sol_traditional(fasta_file, output_file, model_checkpoint=None):
         
         print(f"   Command: {' '.join(cmd)}")
         
-        # Set working directory to PLM_Sol root
-        working_dir = os.path.dirname(__file__)
+        # Set working directory to PLM_Sol root; fall back to current dir if blank
+        working_dir = os.path.dirname(os.path.abspath(wrapper_path))
+        if not working_dir:
+            working_dir = os.getcwd()
         print(f"   Working directory: {working_dir}")
         
         print(f" Executing traditional PLM_Sol wrapper...")
