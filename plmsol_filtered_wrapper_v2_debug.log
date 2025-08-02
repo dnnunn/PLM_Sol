@@ -2588,3 +2588,9 @@ remapping: /var/tmp/tmpp80r4c1_.fasta
 2025-08-02 07:05:35,505 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
 2025-08-02 07:05:35,506 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
 2025-08-02 07:05:35,506 INFO [plmsol_filtered_wrapper_v2]: Args: ['plmsol_filtered_wrapper_v2.py', '--fasta', '/home/david_nunn/PLM_Sol/ten_seq_test.fasta', '--out', '/home/david_nunn/PLM_Sol/tmp_wrapper_test_out.csv']
+2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Args: ['plmsol_filtered_wrapper_v2.py', '--fasta', '/home/david_nunn/PLM_Sol/ten_seq_test.fasta', '--out', '/home/david_nunn/PLM_Sol/tmp_wrapper_test_out.csv']
