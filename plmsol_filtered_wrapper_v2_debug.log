@@ -2594,3 +2594,175 @@ remapping: /var/tmp/tmpp80r4c1_.fasta
 2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
 2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
 2025-08-02 08:13:31,594 INFO [plmsol_filtered_wrapper_v2]: Args: ['plmsol_filtered_wrapper_v2.py', '--fasta', '/home/david_nunn/PLM_Sol/ten_seq_test.fasta', '--out', '/home/david_nunn/PLM_Sol/tmp_wrapper_test_out.csv']
+2025-08-02 08:17:24,598 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-02 08:17:24,598 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-02 08:17:24,598 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-02 08:17:24,598 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpwb3ec3jw.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmplaz0bm6n.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-02 08:17:24,606 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmplaz0bm6n.json
+2025-08-02 08:17:25,993 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-02 08:17:28,243 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.2511335015296936, -0.18808726966381073, 0.2084081619977951, 0.3086254894733429, 0.28442543745040894, -0.16742831468582153, -0.3088299632072449, -0.34096333384513855, 0.07527967542409897, 0.1777283400297165, -0.00477475905790925, 0.23349736630916595, -0.04401695728302002, -0.021208951249718666,
+2025-08-02 08:17:28,243 INFO [plmsol_filtered_wrapper_v2]: Loaded 10 server embeddings
+2025-08-02 08:17:28,256 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:17:28,257 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:17:28,266 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpgafc5u00.yml
+2025-08-02 08:17:28,267 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+optimizer_parameters:
+  lr: 0.0001
+output_files_name: /var/tmp/tmp2dbvodvs/temp_plm_results.csv
+remapping: /var/tmp/tmpvuc392d0.fasta
+
+2025-08-02 08:17:28,267 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpvuc392d0.fasta
+2025-08-02 08:17:28,267 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpgafc5u00.yml --server_embeddings_file /var/tmp/tmplaz0bm6n.json
+2025-08-02 08:17:28,267 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-02 08:17:38,997 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 0
+2025-08-02 08:17:38,997 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] Loading server embeddings from: /var/tmp/tmplaz0bm6n.json
+[DEBUG] Loaded 10 server embeddings
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: True
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmpgafc5u00.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', optimizer_parameters={'lr': 0.0001}, output_files_name='/var/tmp/tmp2dbvodvs/temp_plm_results.csv', remapping='/var/tmp/tmpvuc392d0.fasta', server_embeddings_file='/var/tmp/tmplaz0bm6n.json')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmpgafc5u00.yml' mode='r' encoding='UTF-8'>
+2025-08-02 08:17:38,997 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+/home/david_nunn/PLM_Sol/datasets/transforms.py:35: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  embedding = torch.tensor(embedding).float()
+
+
+2025-08-02 08:17:38,997 INFO [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmp2dbvodvs/temp_plm_results.csv exists, size: 3634 bytes
+2025-08-02 08:17:39,004 INFO [plmsol_filtered_wrapper_v2]: PLM_Sol produced 10 results
+2025-08-02 08:17:39,004 INFO [plmsol_filtered_wrapper_v2]: CSV columns: ['Unnamed: 0', 'protein_ID', 'sequence', 'predict_result']
+2025-08-02 08:17:39,012 INFO [plmsol_filtered_wrapper_v2]: CSV head:
+   Unnamed: 0  ... predict_result
+0           0  ...       0.670686
+1           1  ...       0.496567
+2           2  ...       0.796926
+3           3  ...       0.412305
+4           4  ...       0.461405
+
+[5 rows x 4 columns]
+2025-08-02 08:17:39,013 INFO [plmsol_filtered_wrapper_v2]: Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore
+2025-08-02 08:17:39,014 INFO [plmsol_filtered_wrapper_v2]: Saved renamed columns to temp file: /var/tmp/tmp2dbvodvs/temp_plm_results.csv
+2025-08-02 08:17:39,022 INFO [plmsol_filtered_wrapper_v2]: SUCCESS: PLM_Sol produced 10 unique prediction scores
+2025-08-02 08:17:44,116 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-02 08:17:44,116 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-02 08:17:44,119 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-02 08:17:44,119 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmp5x7cnye7.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmp65gd73el.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-02 08:17:44,146 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmp65gd73el.json
+2025-08-02 08:17:44,440 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-02 08:17:44,934 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.2326401174068451, -0.17914532124996185, 0.2715328633785248, 0.3243406116962433, 0.4372239410877228, -0.171728253364563, -0.33915412425994873, -0.3888998329639435, -0.05082287639379501, 0.1267673224210739, -0.20256751775741577, 0.21345552802085876, 0.06658849865198135, -0.043832942843437195, 0.
+2025-08-02 08:17:44,934 INFO [plmsol_filtered_wrapper_v2]: Loaded 2 server embeddings
+2025-08-02 08:17:44,943 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:17:44,944 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:17:44,946 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmpyy3owbia.yml
+2025-08-02 08:17:44,952 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+optimizer_parameters:
+  lr: 0.0001
+output_files_name: /var/tmp/tmprqgs_6eh/temp_plm_results.csv
+remapping: /var/tmp/tmpyulaqhv0.fasta
+
+2025-08-02 08:17:44,952 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpyulaqhv0.fasta
+2025-08-02 08:17:44,952 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmpyy3owbia.yml --server_embeddings_file /var/tmp/tmp65gd73el.json
+2025-08-02 08:17:44,952 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-02 08:17:54,401 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 0
+2025-08-02 08:17:54,401 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] Loading server embeddings from: /var/tmp/tmp65gd73el.json
+[DEBUG] Loaded 2 server embeddings
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: True
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmpyy3owbia.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', optimizer_parameters={'lr': 0.0001}, output_files_name='/var/tmp/tmprqgs_6eh/temp_plm_results.csv', remapping='/var/tmp/tmpyulaqhv0.fasta', server_embeddings_file='/var/tmp/tmp65gd73el.json')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmpyy3owbia.yml' mode='r' encoding='UTF-8'>
+
+2025-08-02 08:17:54,401 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+/home/david_nunn/PLM_Sol/datasets/transforms.py:35: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  embedding = torch.tensor(embedding).float()
+
+
+2025-08-02 08:17:54,402 INFO [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmprqgs_6eh/temp_plm_results.csv exists, size: 809 bytes
+2025-08-02 08:17:54,406 INFO [plmsol_filtered_wrapper_v2]: PLM_Sol produced 2 results
+2025-08-02 08:17:54,406 INFO [plmsol_filtered_wrapper_v2]: CSV columns: ['Unnamed: 0', 'protein_ID', 'sequence', 'predict_result']
+2025-08-02 08:17:54,422 INFO [plmsol_filtered_wrapper_v2]: CSV head:
+   Unnamed: 0  ... predict_result
+0           0  ...       0.594175
+1           1  ...       0.308245
+
+[2 rows x 4 columns]
+2025-08-02 08:17:54,422 INFO [plmsol_filtered_wrapper_v2]: Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore
+2025-08-02 08:17:54,424 INFO [plmsol_filtered_wrapper_v2]: Saved renamed columns to temp file: /var/tmp/tmprqgs_6eh/temp_plm_results.csv
+2025-08-02 08:17:54,424 INFO [plmsol_filtered_wrapper_v2]: SUCCESS: PLM_Sol produced 2 unique prediction scores
+2025-08-02 08:18:01,402 INFO [plmsol_filtered_wrapper_v2]: 
+
+--- NEW RUN: plmsol_filtered_wrapper_v2.py ---
+2025-08-02 08:18:01,402 INFO [plmsol_filtered_wrapper_v2]: Current working directory: /home/david_nunn/PLM_Sol
+2025-08-02 08:18:01,402 INFO [plmsol_filtered_wrapper_v2]: Python executable: /home/david_nunn/miniconda3/envs/PLM_Sol/bin/python
+2025-08-02 08:18:01,402 INFO [plmsol_filtered_wrapper_v2]: Args: ['/home/david_nunn/PLM_Sol/plmsol_filtered_wrapper_v2.py', '--fasta', '/var/tmp/tmpfpdnuyh0.fasta', '--out', '/home/david_nunn/PLM_Sol/solubility_predictor_results.csv', '--server_embeddings_file', '/var/tmp/tmp4ao65c1u.json', '--model_checkpoint', '/home/david_nunn/PLM_Sol/saved_models/model-10.t7']
+2025-08-02 08:18:01,427 INFO [plmsol_filtered_wrapper_v2]: Loading embeddings from: /var/tmp/tmp4ao65c1u.json
+2025-08-02 08:18:02,009 INFO [plmsol_filtered_wrapper_v2]: Embeddings keys: [list]
+2025-08-02 08:18:02,969 INFO [plmsol_filtered_wrapper_v2]: Embeddings preview: [[[-0.1489194929599762, -0.27540260553359985, 0.2842714488506317, 0.5089882612228394, 0.23024392127990723, -0.13006018102169037, -0.3092135787010193, -0.27921536564826965, 0.042935531586408615, -0.006549914833158255, -0.09108071029186249, 0.12124611437320709, 0.05614476278424263, -0.0183289553970098
+2025-08-02 08:18:02,970 INFO [plmsol_filtered_wrapper_v2]: Loaded 4 server embeddings
+2025-08-02 08:18:02,971 INFO [plmsol_filtered_wrapper_v2]: Checking model checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:18:02,971 INFO [plmsol_filtered_wrapper_v2]: Model checkpoint exists: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+2025-08-02 08:18:02,972 INFO [plmsol_filtered_wrapper_v2]: Created inference config: /var/tmp/tmptdy128jk.yml
+2025-08-02 08:18:02,973 INFO [plmsol_filtered_wrapper_v2]: Config YAML content:
+checkpoint: /home/david_nunn/PLM_Sol/saved_models/model-10.t7
+key_format: fasta_descriptor
+model_parameters:
+  dropout: 0.2
+  kernel_size: 5
+  output_dim: 2
+model_type: biLSTM_TextCNN
+optimizer: Adam
+optimizer_parameters:
+  lr: 0.0001
+output_files_name: /var/tmp/tmptwcq9g1a/temp_plm_results.csv
+remapping: /var/tmp/tmpyj7llwus.fasta
+
+2025-08-02 08:18:02,973 INFO [plmsol_filtered_wrapper_v2]: Remapping file: /var/tmp/tmpyj7llwus.fasta
+2025-08-02 08:18:02,973 INFO [plmsol_filtered_wrapper_v2]: Inference command: conda run -n PLM_Sol python /home/david_nunn/PLM_Sol/inference.py --config /var/tmp/tmptdy128jk.yml --server_embeddings_file /var/tmp/tmp4ao65c1u.json
+2025-08-02 08:18:02,973 INFO [plmsol_filtered_wrapper_v2]: Running inference.py as subprocess with server embeddings...
+2025-08-02 08:18:12,926 INFO [plmsol_filtered_wrapper_v2]: inference.py return code: 0
+2025-08-02 08:18:12,927 INFO [plmsol_filtered_wrapper_v2]: inference.py STDOUT:
+[DEBUG] Loading server embeddings from: /var/tmp/tmp4ao65c1u.json
+[DEBUG] Loaded 4 server embeddings
+[DEBUG] No checkpoints_list provided, running inference with config args directly
+[DEBUG] Entered inference. Using server_embeddings: True
+[DEBUG] Args: Namespace(batch_size=16, checkpoint='/home/david_nunn/PLM_Sol/saved_models/model-10.t7', checkpoints_list=[], config=<_io.TextIOWrapper name='/var/tmp/tmptdy128jk.yml' mode='r' encoding='UTF-8'>, distance_threshold=-1.0, embedding_mode='lm', embeddings='data/embeddings/val_reduced.h5', key_format='fasta_descriptor', log_iterations=100, model_parameters={'dropout': 0.2, 'kernel_size': 5, 'output_dim': 2}, model_type='biLSTM_TextCNN', optimizer='Adam', optimizer_parameters={'lr': 0.0001}, output_files_name='/var/tmp/tmptwcq9g1a/temp_plm_results.csv', remapping='/var/tmp/tmpyj7llwus.fasta', server_embeddings_file='/var/tmp/tmp4ao65c1u.json')
+[DEBUG] Config file: <_io.TextIOWrapper name='/var/tmp/tmptdy128jk.yml' mode='r' encoding='UTF-8'>
+
+2025-08-02 08:18:12,927 INFO [plmsol_filtered_wrapper_v2]: inference.py STDERR:
+/home/david_nunn/PLM_Sol/datasets/transforms.py:35: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  embedding = torch.tensor(embedding).float()
+
+
+2025-08-02 08:18:12,927 INFO [plmsol_filtered_wrapper_v2]: Output file /var/tmp/tmptwcq9g1a/temp_plm_results.csv exists, size: 1548 bytes
+2025-08-02 08:18:12,945 INFO [plmsol_filtered_wrapper_v2]: PLM_Sol produced 4 results
+2025-08-02 08:18:12,945 INFO [plmsol_filtered_wrapper_v2]: CSV columns: ['Unnamed: 0', 'protein_ID', 'sequence', 'predict_result']
+2025-08-02 08:18:12,953 INFO [plmsol_filtered_wrapper_v2]: CSV head:
+   Unnamed: 0  ... predict_result
+0           0  ...       0.723742
+1           1  ...       0.615892
+2           2  ...       0.630188
+3           3  ...       0.651094
+
+[4 rows x 4 columns]
+2025-08-02 08:18:12,954 INFO [plmsol_filtered_wrapper_v2]: Renamed columns: protein_ID -> Accession, predict_result -> SolubilityScore
+2025-08-02 08:18:12,956 INFO [plmsol_filtered_wrapper_v2]: Saved renamed columns to temp file: /var/tmp/tmptwcq9g1a/temp_plm_results.csv
+2025-08-02 08:18:12,956 INFO [plmsol_filtered_wrapper_v2]: SUCCESS: PLM_Sol produced 4 unique prediction scores
