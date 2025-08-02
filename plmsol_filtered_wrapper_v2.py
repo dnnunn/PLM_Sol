@@ -240,6 +240,30 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
     print(f"[MERGE DEBUG] Original FASTA: {original_fasta}")
     print(f"[MERGE DEBUG] Output file: {output_file}")
     print(f"[MERGE DEBUG] Filtered sequences count: {len(filtered_sequences)}")
+    
+    # CRITICAL FIX: If no sequences were filtered, directly copy temp results
+    if len(filtered_sequences) == 0 and os.path.exists(plm_sol_results):
+        print(f"[MERGE DEBUG] ✅ NO SEQUENCES FILTERED - DIRECT COPY MODE")
+        print(f"[MERGE DEBUG] Copying real predictions directly from {plm_sol_results} to {output_file}")
+        
+        # Read temp results and copy directly to output
+        results_df = pd.read_csv(plm_sol_results)
+        print(f"[MERGE DEBUG] Direct copy: {len(results_df)} real predictions")
+        print(f"[MERGE DEBUG] Sample predictions: {list(results_df['SolubilityScore'].head())}")
+        
+        # Save directly to output file
+        results_df.to_csv(output_file, index=False)
+        
+        # Verify the copy worked
+        if os.path.exists(output_file):
+            verify_df = pd.read_csv(output_file)
+            print(f"[MERGE DEBUG] ✅ Direct copy successful: {len(verify_df)} predictions in output")
+            print(f"[MERGE DEBUG] Output predictions: {list(verify_df['SolubilityScore'].head())}")
+            return
+        else:
+            print(f"[MERGE DEBUG] ❌ Direct copy failed - falling back to merge logic")
+    
+    # Original merge logic for cases with filtered sequences
     results_dict = {}
     if os.path.exists(plm_sol_results):
         results_df = pd.read_csv(plm_sol_results)
@@ -288,8 +312,11 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
             })
         else:
             # Use PLM_Sol prediction if available
+            print(f"[MERGE DEBUG] Looking up sequence: '{accession_raw}' -> normalized: '{accession}'")
+            
             if accession in results_dict:
                 result_row = results_dict[accession]
+                print(f"[MERGE DEBUG] ✅ FOUND REAL PREDICTION for '{accession}': {result_row['SolubilityScore']}")
                 final_results.append({
                     'Accession': accession,
                     'Sequence': sequence,
@@ -300,6 +327,12 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
                 })
             else:
                 # No result found - assign default
+                print(f"[MERGE DEBUG] ❌ NO MATCH FOUND for '{accession}' - FALLBACK TO 0.5")
+                print(f"[MERGE DEBUG] Available keys in results_dict: {list(results_dict.keys())}")
+                print(f"[MERGE DEBUG] Key comparison:")
+                for key in results_dict.keys():
+                    print(f"[MERGE DEBUG]   '{key}' == '{accession}' ? {key == accession}")
+                
                 final_results.append({
                     'Accession': accession,
                     'Sequence': sequence,
@@ -308,6 +341,7 @@ def merge_results_with_filtered(plm_sol_results, filtered_sequences, original_fa
                     'Probability_Soluble': 0.5,
                     'Probability_Insoluble': 0.5
                 })
+                print(f"[MERGE DEBUG] Added fallback result for '{accession}'")
     
     # Save final results
     final_df = pd.DataFrame(final_results)
